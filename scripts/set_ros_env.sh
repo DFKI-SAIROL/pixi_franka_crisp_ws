@@ -1,16 +1,26 @@
-export ROS_DOMAIN_ID=100
-# export RMW_IMPLEMENTATION=rmw_zenoh_cpp
-# export ZENOH_ROUTER_CHECK_ATTEMPTS=-1
-# export ZENOH_CONFIG_OVERRIDE='listen/endpoints=["tcp/10.157.163.121:7447"];scouting/multicast/enabled=true'
+#/usr/bin/env sh
 
-export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
-export ROS_NETWORK_INTERFACE="enx607d0937fb24"
+# Ensure conda libs take precedence over system libs
+export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH
 
+ROS_ENV_FILE="scripts/personal_ros_env.sh"
 
-SCRIPT_PATH="$(realpath "${BASH_SOURCE[0]}")"
-SCRIPT_DIR="$(dirname "$SCRIPT_PATH")"
+if [ -f "$ROS_ENV_FILE" ]; then
+    echo "$ROS_ENV_FILE already exists. Sourcing it..."
+    . "$ROS_ENV_FILE"
+else
+    if [ "$ROS_DISTRO" = "jazzy" ] || [ "$ROS_DISTRO" = "humble" ]; then
+        echo "$ROS_ENV_FILE not found. Using default environment variables..."
+        export ROS_DOMAIN_ID=5
+        export ROS_LOCALHOST_ONLY=0
+        export RMW_IMPLEMENTATION=rmw_fastrtps_cpp #rmw_cyclonedds_cpp
+    fi
+fi
 
-export CYCLONEDDS_URI=file:///$SCRIPT_DIR/cyclone_config.xml
+WORKSPACE_SETUP="${PIXI_PROJECT_ROOT:-$(pwd)}/install/setup.bash"
+if [ -f "$WORKSPACE_SETUP" ]; then
+    . "$WORKSPACE_SETUP"
+fi
 
-ros2 daemon stop && ros2 daemon start
-
+ros2 daemon stop
+ros2 daemon start

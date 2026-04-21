@@ -1,12 +1,17 @@
 [workspace]
-authors = ["Daniel San José Pro <42489409+danielsanjosepro@users.noreply.github.com>"]
-name = "franka_ros2_pixi"
-version = "0.1.0"
+preview = ["pixi-build"]
+authors = [
+    "Maximilian Tölle <maximilian.toelle@dfki.de>",
+    "Theo Gruner <theo.gruner@tu-darmstadt.de>",
+    "Ken-Joel Simmoteit <ken-joel.simmoteit@tu-darmstadt.de>",
+    "João Carvalho < joao@robot-learning.de>",
+]
 channels = ["https://fast.prefix.dev/conda-forge"]
+name = "frankapy"
 platforms = ["linux-64"]
 
 [activation]
-scripts = ["scripts/set_ros_env.sh", "install/setup.bash"]
+scripts = ["scripts/set_ros_env.sh"]
 
 [dependencies]
 python = "*"
@@ -15,82 +20,81 @@ cmake = "*"
 pkg-config = "*"
 make = "*"
 ninja = "*"
+pinocchio = "*"
+pure-python-adb = ">=0.3.0.dev0,<0.4"
+pyqtgraph = ">=0.13.7,<0.14"
+libtmux = ">=0.46.2,<0.47"
+omegaconf = "*"
+git = "*"
+
+[tasks]
+test_raw = "pytest --cov=frankapy --cov-report=html"
+test = [{task="test_raw", environment="humble"}]
+setup = "bash scripts/setup.sh"
+build = "colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DBUILD_TESTING=OFF -DBUILD_TESTS=OFF -DBUILD_EXAMPLES=OFF"
+clean = "rm -rf build install log"
+clean-build = [{ task = "clean" }, { task = "build" }]
+robot = "bash scripts/run_robot.sh"
+teleop = "bash scripts/run_teleop.sh"
+client = "bash scripts/run_client.sh"
+data-collection = "bash scripts/run_data_collection.sh"
+frankapy = { depends-on = ["robot", "teleop", "data-collection", "client"] }
+
 
 [target.linux.dependencies]
 libgl-devel = "*"
+libcap = "*"
+poco = "*"
 
 [environments]
-jazzy = { features = ["jazzy", "dev", "extra"] }
-jazzy-crisp = { features = ["jazzy", "dev", "extra", "crisp"] }
-humble = { features = ["humble", "dev", "extra"] }
+humble = { features = ["humble", "frankapy", "extra", "dev"] }
+jazzy = { features = ["jazzy", "frankapy", "extra", "dev"] }
+humble-viser = { features = ["jazzy", "viser", "frankapy", "extra", "dev"] }
+jazzy-viser = { features = ["jazzy", "viser", "frankapy", "extra", "dev"] }
+humble-clean = { features = ["humble"] }
 
-# feature.humble
+# humble
 [feature.humble]
 channels = ["https://prefix.dev/robostack-humble"]
 
 [feature.humble.dependencies]
-colcon-common-extensions = "*"
-pinocchio = ">=3.7.0,<4"
-poco = ">=1.14.2,<2"
-ros-humble-ament-clang-format = "*"
 ros-humble-desktop = "*"
-ros-humble-joint-state-publisher = "*"
-ros-humble-moveit-core = "*"
-ros-humble-moveit-kinematics = "*"
-ros-humble-moveit-planners-ompl = "*"
-ros-humble-moveit-ros-move-group = "*"
-ros-humble-rmw-cyclonedds-cpp = "*"
-ros-humble-rmw-zenoh-cpp = "*"
+colcon-common-extensions = "*"
 ros-humble-ros2-control = "*"
 ros-humble-ros2-controllers = "*"
-ros-humble-xacro = "*"
+ros-humble-joint-state-publisher = "*"
+ros-humble-rmw-zenoh-cpp = "*"
+ros-humble-rmw-cyclonedds-cpp = "*"
+ros-humble-rosbag2-storage-mcap = "*"
 rosdep = "*"
-ros-humble-generate-parameter-library = ">=0.3.9,<0.4"
+libstdcxx-ng = "*"
+setuptools = ">=65.0.0,<70.0.0"
+ros-humble-moveit = "*"
+ros-humble-plotjuggler-ros = ">=2.1.0,<3"
 
-[feature.humble.tasks]
-clone = "git clone https://github.com/frankarobotics/franka_ros2.git -b humble src/franka_ros2 && git clone https://github.com/frankarobotics/franka_description.git src/franka_description && git clone --recurse-submodules https://github.com/frankarobotics/libfranka.git src/libfranka"
-update-libfranka = "cd src/libfranka && git submodule update --init --recursive && cd ../../"
-ignore-gazebo = "touch src/franka_ros2/franka_gazebo/COLCON_IGNORE"
-build = "colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -Wno-dev"
-setup = { depends-on = ["clone", "update-libfranka", "apply-patches", "ignore-gazebo", "build"] }
-franka = "ros2 launch scripts/launch/franka.launch.py"
- 
+[feature.humble.pypi-dependencies]
+viser = ">=1.0.16, <2"
+
 # jazzy
 [feature.jazzy]
 channels = ["https://prefix.dev/robostack-jazzy"]
 
 [feature.jazzy.dependencies]
-colcon-common-extensions = "*"
-pinocchio = ">=3.7.0,<4"
-poco = ">=1.14.2,<2"
-ros-jazzy-ament-clang-format = ">=0.17.2,<0.18"
 ros-jazzy-desktop = "*"
-ros-jazzy-joint-state-publisher = ">=2.4.0,<3"
-ros-jazzy-moveit-core = ">=2.12.3,<3"
-ros-jazzy-moveit-kinematics = ">=2.12.3,<3"
-ros-jazzy-moveit-planners-ompl = ">=2.12.3,<3"
-ros-jazzy-moveit-ros-move-group = ">=2.12.3,<3"
-ros-jazzy-rmw-cyclonedds-cpp = "*"
-ros-jazzy-rmw-zenoh-cpp = "*"
 ros-jazzy-ros2-control = "*"
-ros-jazzy-ros2-control-cmake = ">=0.2.1,<0.3"
 ros-jazzy-ros2-controllers = "*"
-ros-jazzy-xacro = ">=2.0.13,<3"
+ros-jazzy-joint-state-publisher = "*"
+colcon-common-extensions = "*"
+ros-jazzy-rmw-zenoh-cpp = "*"
+ros-jazzy-rmw-cyclonedds-cpp = "*"
+ros-jazzy-rosbag2-storage-mcap = "*"
 rosdep = "*"
+ros-jazzy-moveit = "*"
+# scipy = "*"
 
-[feature.jazzy.tasks]
-clone = "git clone https://github.com/frankarobotics/franka_ros2.git -b jazzy src/franka_ros2 && git clone https://github.com/frankarobotics/franka_description.git src/franka_description && git clone --recurse-submodules https://github.com/frankarobotics/libfranka.git src/libfranka"
-update-libfranka = "cd src/libfranka && git submodule update --init --recursive && cd ../../"
-apply-patches = "bash scripts/apply_patches.sh"
-ignore-gazebo = "touch src/franka_ros2/franka_gazebo/COLCON_IGNORE"
-build = "colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -Wno-dev"
-clone-crisp = "git clone https://github.com/utiasdsl/crisp_controllers.git src/crisp_controllers"
-setup = { depends-on = ["clone", "update-libfranka", "apply-patches", "ignore-gazebo", "build"] }
-franka = "ros2 launch scripts/launch/franka.launch.py"
-
-[feature.crisp.tasks]
-crisp-figure-eight = "python examples/crisp_figure_eight.py"
-crisp-teleop = "python examples/crisp_teleop.py"
+[feature.viser.pypi-dependencies]
+viser = ">=1.0.19, <2"
+robot-descriptions = ">=1.22.0, <2"
 
 [feature.dev.pypi-dependencies]
 ruff= "*"
@@ -100,9 +104,21 @@ twine = "*"
 pre-commit = "*"
 pytest = "*"  # for testing
 
+[feature.frankapy.pypi-dependencies]
+frankapy = { path = ".", editable = true }
+crisp-python = { path = "src/crisp_py", editable = true }
+
+[feature.frankapy.dependencies]
+pynput = ">=1.8.1,<2"
+grpcio = ">=1.67.1,<2"
+pyzmq = ">=27.0.0,<28"
+pyserial = ">=3.5,<4"
+transforms3d = ">=0.4.2,<0.5"
+
 [feature.extra.pypi-dependencies]
 rich = "*"  # For nice prints
 matplotlib = "*"  # to do some plots
 
-[feature.crisp.pypi-dependencies]
-crisp-python = ">=3.0.0,<4"
+[pypi-dependencies]
+yourdfpy = ">=0.0.58, <0.0.59"
+# crisp-python = { git = "https://github.com/DFKI-SAIROL/crisp_py.git" }
