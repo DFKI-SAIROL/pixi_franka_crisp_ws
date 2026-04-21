@@ -7,3 +7,4 @@ install
 build
 src
 scripts/launch/__pycache__
+pixi.lock

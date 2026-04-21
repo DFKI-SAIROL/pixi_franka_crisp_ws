@@ -12,8 +12,7 @@
     - [1.4.1. Environments](#141-environments)
     - [1.4.2. Additional Tasks](#142-additional-tasks)
   - [1.5. Working with the Environment](#15-working-with-the-environment)
-    - [1.5.1. Predefined Tasks (`pixi run`)](#151-predefined-tasks-pixi-run)
-    - [1.5.2. Interactive Development (`pixi shell`)](#152-interactive-development-pixi-shell)
+    - [1.5.1. Interactive Development (`pixi shell`)](#151-interactive-development-pixi-shell)
 
 
 # 1. Frankapy CRISP Workspace
@@ -62,7 +61,7 @@ pixi run teleop
 ```
 
 ### 1.3.3. Data Collection
-To start a data collection run (recorded in LeRobot format via CRISP Gym):
+To start a data collection run:
 ```bash
 pixi run data-collection
 ```
@@ -73,8 +72,6 @@ pixi run data-collection
 
 ### 1.4.1. Environments
 - **`humble`**: Default ROS 2 Humble environment.
-- **`humble-viser`**: Includes `viser` and `robot-descriptions` for 3D visualization.
-- **`humble-clean`**: A minimal environment with only core dependencies.
 
 ### 1.4.2. Additional Tasks
 - **`pixi run clean`**: Removes `build`, `install`, and `log` directories.
@@ -85,19 +82,9 @@ pixi run data-collection
 
 ## 1.5. Working with the Environment
 
-### 1.5.1. Predefined Tasks (`pixi run`)
-Most common operations are defined as tasks. You can run them directly without entering a project-specific shell:
-```bash
-pixi run robot
-pixi run teleop
-```
-
-### 1.5.2. Interactive Development (`pixi shell`)
-If you want to run arbitrary ROS 2 commands (`ros2 topic list`, `ros2 node info`, etc.) or manually run `colcon`, enter the Pixi shell:
+### 1.5.1. Interactive Development (`pixi shell`)
+If you want to run arbitrary ROS 2 commands (`ros2 topic list`, `ros2 node info`, etc.), enter the Pixi shell:
 ```bash
 pixi shell -e humble
 ```
-> [!TIP]
-> Once inside the shell, your environment is fully sourced (including ROS 2 Humble and any built packages). You can then use standard ROS 2 commands as if they were natively installed.
-
 ---
