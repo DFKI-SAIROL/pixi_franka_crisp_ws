@@ -70,8 +70,8 @@ sync_repo "https://github.com/ROBOTIS-GIT/DynamixelSDK.git" "DynamixelSDK" "$ROS
 sync_repo "https://github.com/ROBOTIS-GIT/dynamixel_interfaces.git" "dynamixel_interfaces" "$ROS_DISTRO"
 
 # 4. CRISP Py & Gym
-sync_repo "https://github.com/utiasdsl/crisp_py.git" "crisp_py"
-sync_repo "https://github.com/utiasdsl/crisp_gym.git" "crisp_gym"
+sync_repo "git@github.com:DFKI-SAIROL/crisp_py.git" "crisp_py"
+sync_repo "git@github.com:DFKI-SAIROL/crisp_gym.git" "crisp_gym"
 
 # 5. Misc
 # TODO: change to the default branch once merged
