@@ -8,11 +8,10 @@
     - [1.3.1. Base Launch (with Safety Layer \& ZED)](#131-base-launch-with-safety-layer--zed)
     - [1.3.2. Teleoperation (Meta Quest VR)](#132-teleoperation-meta-quest-vr)
     - [1.3.3. Data Collection](#133-data-collection)
+    - [1.3.4. Running a Policy](#134-running-a-policy)
   - [1.4. Advanced Usage](#14-advanced-usage)
     - [1.4.1. Environments](#141-environments)
     - [1.4.2. Additional Tasks](#142-additional-tasks)
-  - [1.5. Working with the Environment](#15-working-with-the-environment)
-    - [1.5.1. Interactive Development (`pixi shell`)](#151-interactive-development-pixi-shell)
 
 
 # 1. Frankapy CRISP Workspace
@@ -66,6 +65,42 @@ To start a data collection run:
 pixi run data-collection
 ```
 
+### 1.3.4. Running a Policy
+
+To run a trained policy, follow these steps:
+
+1.  **Launch Pixi Shell**:
+    ```bash
+    pixi shell -e humble
+    ```
+2.  **Start Robot & Cameras**:
+    ```bash
+    pixi run robot
+    ```
+3.  **Run Teleoperation**:
+    ```bash
+    pixi run teleop
+    ```
+4.  **Start Policy Server**:
+    Run this from the `lerobot` environment:
+    ```bash
+    micromamba activate lerobot
+    python policy_server/policy_server.py
+    ```
+5.  **Start Policy Client**:
+    ```bash
+    pixi run client
+    ```
+
+> [!IMPORTANT]
+> **Policy Client Controls:**
+> - `h`: Drive to home position.
+> - `r`: Start the policy.
+> - `s`: Stop the policy.
+>
+> [!CAUTION]
+> Keyboard keys will trigger actions as soon as the client is running. Be careful, as starting the policy by accident can be dangerous. Ensure you specify the correct policy checkpoint and type in the config file.
+
 ---
 
 ## 1.4. Advanced Usage
@@ -75,16 +110,5 @@ pixi run data-collection
 
 ### 1.4.2. Additional Tasks
 - **`pixi run clean`**: Removes `build`, `install`, and `log` directories.
-- **`pixi run test`**: Runs the `frankapy` test suite.
-- **`pixi run client`**: Runs the frankapy client logic.
 
----
-
-## 1.5. Working with the Environment
-
-### 1.5.1. Interactive Development (`pixi shell`)
-If you want to run arbitrary ROS 2 commands (`ros2 topic list`, `ros2 node info`, etc.), enter the Pixi shell:
-```bash
-pixi shell -e humble
-```
 ---
