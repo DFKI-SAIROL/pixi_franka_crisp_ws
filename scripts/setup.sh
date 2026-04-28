@@ -73,8 +73,10 @@ sync_repo "https://github.com/ROBOTIS-GIT/dynamixel_interfaces.git" "dynamixel_i
 sync_repo "https://github.com/utiasdsl/crisp_py.git" "crisp_py"
 sync_repo "https://github.com/utiasdsl/crisp_gym.git" "crisp_gym"
 
+# 5. Misc
 # TODO: change to the default branch once merged
 sync_repo "https://git.ias.informatik.tu-darmstadt.de/ros2/franka/frankapy" "franka_py" "feature/crisp"
+sync_repo "git@github.com:DFKI-SAIROL/robot_ik_layer.git" "robot_ik_layer"
 
 # System tools
 if ! command -v scrcpy &> /dev/null || [ "$(scrcpy --version | head -n 1 | grep -o '1\.')" = "1." ]; then

@@ -26,6 +26,7 @@ pyqtgraph = ">=0.13.7,<0.14"
 libtmux = ">=0.46.2,<0.47"
 omegaconf = "*"
 git = "*"
+openssh = "*"
 
 [tasks]
 test_raw = "pytest --cov=frankapy --cov-report=html"
