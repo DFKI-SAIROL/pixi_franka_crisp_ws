@@ -12,7 +12,8 @@
   - [1.4. Advanced Usage](#14-advanced-usage)
     - [1.4.1. Environments](#141-environments)
     - [1.4.2. Additional Tasks](#142-additional-tasks)
-
+  - [1.5. Troubleshooting](#15-troubleshooting)
+    - [1.5.1. Left Arm Network Unreachable](#151-left-arm-network-unreachable)
 
 # 1. Frankapy CRISP Workspace
 
@@ -112,3 +113,16 @@ To run a trained policy, follow these steps:
 - **`pixi run clean`**: Removes `build`, `install`, and `log` directories.
 
 ---
+## 1.5. Troubleshooting
+### 1.5.1. Left Arm Network Unreachable
+Occasionally, after restarting the PC or if the network interface goes down, the left Franka arm might become unreachable on the network. This usually happens when the dedicated network interface (`enp5s0`) loses its IP address configuration.
+To fix this, you need to manually assign the correct IP address (`192.168.1.100/24`) to the `enp5s0` interface.
+
+```bash
+# 1. Check the current status of the enp5s0 interface (it will likely be missing the inet address)
+ip addr show enp5s0
+# 2. Add the correct IP address to the interface
+sudo ip addr add 192.168.1.100/24 dev enp5s0
+# 3. Verify that the IP address has been successfully assigned
+ip addr show enp5s0
+```
