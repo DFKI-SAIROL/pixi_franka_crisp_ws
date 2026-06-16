@@ -1,9 +1,11 @@
 - [1. CRISP Workspace](#1-crisp-workspace)
   - [1.1. Prerequisites](#11-prerequisites)
-    - [1.1.1. Install Pixi](#111-install-pixi)
+    - [1.1.1. SSH Key](#111-ssh-key)
+    - [1.1.2. Install Pixi](#112-install-pixi)
   - [1.2. Getting Started](#12-getting-started)
     - [1.2.1. Unified Setup \& Environment Initialization](#121-unified-setup--environment-initialization)
-    - [1.2.2. Build the Workspace](#122-build-the-workspace)
+    - [1.2.2. Enter the ROS Environment](#122-enter-the-ros-environment)
+    - [1.2.3. Build the Workspace](#123-build-the-workspace)
   - [1.3. Running the Robot](#13-running-the-robot)
     - [1.3.1. Base Launch (with Safety Layer \& ZED)](#131-base-launch-with-safety-layer--zed)
     - [1.3.2. Teleoperation (Meta Quest VR)](#132-teleoperation-meta-quest-vr)
@@ -21,7 +23,16 @@ This repository provides a unified, **Pixi-managed** environment for the Franka 
 
 ## 1.1. Prerequisites
 
-### 1.1.1. Install Pixi
+### 1.1.1. SSH Key
+Several private repositories are cloned via SSH during setup. Make sure your SSH key is added to your GitHub account before running `pixi run setup`:
+```bash
+# Generate a key if you don't have one
+ssh-keygen -t ed25519 -C "your_email@example.com"
+# Print the public key to copy into GitHub
+cat ~/.ssh/id_ed25519.pub
+```
+
+### 1.1.2. Install Pixi
 If you haven't installed Pixi yet, run the following command:
 ```bash
 curl -fsSL https://pixi.sh/install.sh | bash
@@ -38,7 +49,13 @@ pixi run setup
 > [!NOTE]
 > This command will automatically create the `.pixi` environment, clone repositories into `src/`, apply custom patches, and install dependencies via `rosdep` and `snap` (for `scrcpy`).
 
-### 1.2.2. Build the Workspace
+### 1.2.2. Enter the ROS Environment
+Before running any ROS commands, enter the Pixi shell:
+```bash
+pixi shell -e humble
+```
+
+### 1.2.3. Build the Workspace
 Compile all C++ and Python packages:
 ```bash
 pixi run build
