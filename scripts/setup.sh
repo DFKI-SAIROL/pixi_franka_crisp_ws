@@ -52,6 +52,7 @@ if [ ! -d "franka_ros2" ]; then
     cd ..
     
     vcs import ./franka_ros2 < ./franka_ros2/dependency.repos --recursive --skip-existing
+    rosdep install --from-paths ./franka_ros2 --ignore-src --rosdistro "$ROS_DISTRO" --skip-keys "ignition-plugin franka_ign_ros2_control" -y
 else
     echo "franka_ros2 already exists, pulling changes for sub-repos..."
     cd franka_ros2
