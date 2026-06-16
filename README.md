@@ -1,4 +1,4 @@
-- [1. Frankapy CRISP Workspace](#1-frankapy-crisp-workspace)
+- [1. CRISP Workspace](#1-crisp-workspace)
   - [1.1. Prerequisites](#11-prerequisites)
     - [1.1.1. Install Pixi](#111-install-pixi)
   - [1.2. Getting Started](#12-getting-started)
@@ -15,7 +15,7 @@
   - [1.5. Troubleshooting](#15-troubleshooting)
     - [1.5.1. Left Arm Network Unreachable](#151-left-arm-network-unreachable)
 
-# 1. Frankapy CRISP Workspace
+# 1. CRISP Workspace
 
 This repository provides a unified, **Pixi-managed** environment for the Franka Emika Panda robots, integrating the **CRISP** (C++ Real-time Impedance and Space Programming) ecosystem for high-performance, compliant control.
 
