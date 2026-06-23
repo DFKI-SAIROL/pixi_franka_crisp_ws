@@ -3,7 +3,6 @@
     - [1.1.1. SSH Key](#111-ssh-key)
     - [1.1.2. Install Pixi](#112-install-pixi)
     - [1.1.3. Stable Gripper Device Names](#113-stable-gripper-device-names)
-    - [1.1.3. Stable Gripper Device Names](#113-stable-gripper-device-names)
   - [1.2. Getting Started](#12-getting-started)
     - [1.2.1. Unified Setup \& Environment Initialization](#121-unified-setup--environment-initialization)
     - [1.2.2. Enter the ROS Environment](#122-enter-the-ros-environment)
@@ -59,6 +58,11 @@ pixi run setup
 ```
 > [!NOTE]
 > This command will automatically create the `.pixi` environment, clone repositories into `src/`, apply custom patches, and install dependencies via `rosdep` and `snap` (for `scrcpy`).
+
+Then install the Pixi environment before entering the shell:
+```bash
+pixi install -e humble
+```
 
 ### 1.2.2. Enter the ROS Environment
 Before running any ROS commands, enter the Pixi shell:

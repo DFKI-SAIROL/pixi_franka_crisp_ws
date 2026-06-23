@@ -34,13 +34,11 @@ sync_repo() {
     fi
 }
 
-# 1. CRISP Controllers
-sync_repo "https://github.com/utiasDSL/crisp_controllers.git" "crisp_controllers"
-
 # 2. Franka ROS 2
 if [ ! -d "franka_ros2" ]; then
     echo "Cloning franka_ros2 ($ROS_DISTRO)..."
     git clone -b "$ROS_DISTRO" https://github.com/frankarobotics/franka_ros2.git ./franka_ros2
+    git -C ./franka_ros2 checkout 7ed0458
     
     # Remove nodes not used in this pipeline
     rm -rf ./franka_ros2/franka_gazebo ./franka_ros2/franka_fr3_moveit_config ./franka_ros2/franka_mobile_example_controllers ./franka_ros2/franka_mobile_sensors ./franka_ros2/franka_gazebo_bringup
@@ -65,6 +63,7 @@ fi
 cd "$SRC_DIR"
 
 # 3. Dynamixel components
+sync_repo "https://github.com/utiasDSL/crisp_controllers.git" "crisp_controllers"
 sync_repo "https://github.com/ROBOTIS-GIT/dynamixel_hardware_interface.git" "dynamixel_hardware_interface" "$ROS_DISTRO"
 sync_repo "https://github.com/ROBOTIS-GIT/DynamixelSDK.git" "DynamixelSDK" "$ROS_DISTRO"
 sync_repo "https://github.com/ROBOTIS-GIT/dynamixel_interfaces.git" "dynamixel_interfaces" "$ROS_DISTRO"
@@ -76,9 +75,9 @@ sync_repo "git@github.com:DFKI-SAIROL/crisp_gym.git" "crisp_gym"
 # 5. Misc
 sync_repo "git@github.com:DFKI-SAIROL/robot_ik_layer.git" "robot_ik_layer"
 sync_repo "git@github.com:DFKI-SAIROL/robot_safety_layer.git" "robot_safety_layer"
-sync_repo "git@github.com:DFKI-SAIROL/franka_robot_description.git" "franka_robot_description"
+sync_repo "git@github.com:DFKI-SAIROL/franka_robot_description.git" "franka_robot_description" "feature/gripper_rules"
 sync_repo "git@github.com:DFKI-SAIROL/franka_launch.git" "franka_launch" "feature/gripper_rules"
-sync_repo "git@github.com:DFKI-SAIROL/franka_py.git" "franka_py" "feature/gripper_rules"
+sync_repo "git@github.com:DFKI-SAIROL/franka_py.git" "franka_py" 
 
 # System tools
 if ! command -v scrcpy &> /dev/null || [ "$(scrcpy --version | head -n 1 | grep -o '1\.')" = "1." ]; then
