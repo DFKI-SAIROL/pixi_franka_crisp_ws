@@ -77,8 +77,8 @@ sync_repo "git@github.com:DFKI-SAIROL/crisp_gym.git" "crisp_gym"
 sync_repo "git@github.com:DFKI-SAIROL/robot_ik_layer.git" "robot_ik_layer"
 sync_repo "git@github.com:DFKI-SAIROL/robot_safety_layer.git" "robot_safety_layer"
 sync_repo "git@github.com:DFKI-SAIROL/franka_robot_description.git" "franka_robot_description"
-sync_repo "git@github.com:DFKI-SAIROL/franka_launch.git" "franka_launch"
-sync_repo "git@github.com:DFKI-SAIROL/franka_py.git" "franka_py"
+sync_repo "git@github.com:DFKI-SAIROL/franka_launch.git" "franka_launch" "feature/gripper_rules"
+sync_repo "git@github.com:DFKI-SAIROL/franka_py.git" "franka_py" "feature/gripper_rules"
 
 # System tools
 if ! command -v scrcpy &> /dev/null || [ "$(scrcpy --version | head -n 1 | grep -o '1\.')" = "1." ]; then

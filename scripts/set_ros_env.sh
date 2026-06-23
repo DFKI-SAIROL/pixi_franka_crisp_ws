@@ -14,7 +14,6 @@ else
         export ROS_DOMAIN_ID=5
         export ROS_LOCALHOST_ONLY=0
         export RMW_IMPLEMENTATION=rmw_fastrtps_cpp #rmw_cyclonedds_cpp
-        export FASTRTPS_DEFAULT_PROFILES_FILE="$PIXI_PROJECT_ROOT/config/fastdds_config.xml"
     fi
 fi
 

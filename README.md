@@ -2,6 +2,8 @@
   - [1.1. Prerequisites](#11-prerequisites)
     - [1.1.1. SSH Key](#111-ssh-key)
     - [1.1.2. Install Pixi](#112-install-pixi)
+    - [1.1.3. Stable Gripper Device Names](#113-stable-gripper-device-names)
+    - [1.1.3. Stable Gripper Device Names](#113-stable-gripper-device-names)
   - [1.2. Getting Started](#12-getting-started)
     - [1.2.1. Unified Setup \& Environment Initialization](#121-unified-setup--environment-initialization)
     - [1.2.2. Enter the ROS Environment](#122-enter-the-ros-environment)
@@ -37,6 +39,15 @@ If you haven't installed Pixi yet, run the following command:
 ```bash
 curl -fsSL https://pixi.sh/install.sh | bash
 source ~/.bashrc
+```
+
+### 1.1.3. Stable Gripper Device Names
+The RH-P12-RN-A grippers enumerate as `/dev/ttyUSB<N>` in random order. Install a udev rule to pin each adapter to a fixed symlink (`/dev/dynamixel_left`, `/dev/dynamixel_right`):
+
+```bash
+sudo cp 99-dynamixel.rules /etc/udev/rules.d/ # located in franka_launch/udev
+sudo udevadm control --reload-rules && sudo udevadm trigger
+ls -l /dev/dynamixel_*
 ```
 
 ## 1.2. Getting Started
