@@ -22,6 +22,9 @@
 
 This repository provides a unified, **Pixi-managed** environment for the Franka Emika Panda robots, integrating the **CRISP** (C++ Real-time Impedance and Space Programming) ecosystem for high-performance, compliant control.
 
+>[!NOTE] 
+> For any further details, see the original documentation [here](https://learnsyslab.github.io/crisp_controllers/).
+
 ## 1.1. Prerequisites
 
 ### 1.1.1. SSH Key

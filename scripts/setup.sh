@@ -63,21 +63,23 @@ fi
 cd "$SRC_DIR"
 
 # 3. Dynamixel components
-sync_repo "https://github.com/utiasDSL/crisp_controllers.git" "crisp_controllers"
 sync_repo "https://github.com/ROBOTIS-GIT/dynamixel_hardware_interface.git" "dynamixel_hardware_interface" "$ROS_DISTRO"
 sync_repo "https://github.com/ROBOTIS-GIT/DynamixelSDK.git" "DynamixelSDK" "$ROS_DISTRO"
 sync_repo "https://github.com/ROBOTIS-GIT/dynamixel_interfaces.git" "dynamixel_interfaces" "$ROS_DISTRO"
 
-# 4. CRISP Py & Gym
+# 4. CRISP components
 sync_repo "git@github.com:DFKI-SAIROL/crisp_py.git" "crisp_py"
 sync_repo "git@github.com:DFKI-SAIROL/crisp_gym.git" "crisp_gym"
+sync_repo "git@github.com:DFKI-SAIROL/crisp_controllers.git" "crisp_controllers"
 
 # 5. Misc
 sync_repo "git@github.com:DFKI-SAIROL/robot_ik_layer.git" "robot_ik_layer"
 sync_repo "git@github.com:DFKI-SAIROL/robot_safety_layer.git" "robot_safety_layer"
 sync_repo "git@github.com:DFKI-SAIROL/franka_robot_description.git" "franka_robot_description" "feature/gripper_rules"
 sync_repo "git@github.com:DFKI-SAIROL/franka_launch.git" "franka_launch" "feature/gripper_rules"
-sync_repo "git@github.com:DFKI-SAIROL/franka_py.git" "franka_py" 
+sync_repo "git@github.com:DFKI-SAIROL/franka_py.git" "franka_py"
+sync_repo "git@github.com:DFKI-SAIROL/franka_data_collection.git" "franka_data_collection"
+sync_repo "git@github.com:DFKI-SAIROL/franka_custom_msgs.git" "franka_custom_msgs"
 
 # System tools
 if ! command -v scrcpy &> /dev/null || [ "$(scrcpy --version | head -n 1 | grep -o '1\.')" = "1." ]; then
