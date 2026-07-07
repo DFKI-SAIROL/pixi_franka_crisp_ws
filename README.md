@@ -2,9 +2,10 @@
   - [1.1. Prerequisites](#11-prerequisites)
     - [1.1.1. SSH Key](#111-ssh-key)
     - [1.1.2. Install Pixi](#112-install-pixi)
+    - [1.1.3. Stable Gripper Device Names](#113-stable-gripper-device-names)
   - [1.2. Getting Started](#12-getting-started)
-    - [1.2.1. Unified Setup \& Environment Initialization](#121-unified-setup--environment-initialization)
-    - [1.2.2. Enter the ROS Environment](#122-enter-the-ros-environment)
+    - [1.2.1. Enter the ROS Environment](#121-enter-the-ros-environment)
+    - [1.2.2. Unified Setup \& Environment Initialization](#122-unified-setup--environment-initialization)
     - [1.2.3. Build the Workspace](#123-build-the-workspace)
   - [1.3. Running the Robot](#13-running-the-robot)
     - [1.3.1. Base Launch (with Safety Layer \& ZED)](#131-base-launch-with-safety-layer--zed)
@@ -20,6 +21,9 @@
 # 1. CRISP Workspace
 
 This repository provides a unified, **Pixi-managed** environment for the Franka Emika Panda robots, integrating the **CRISP** (C++ Real-time Impedance and Space Programming) ecosystem for high-performance, compliant control.
+
+>[!NOTE] 
+> For any further details, see the original documentation [here](https://learnsyslab.github.io/crisp_controllers/).
 
 ## 1.1. Prerequisites
 
@@ -39,20 +43,37 @@ curl -fsSL https://pixi.sh/install.sh | bash
 source ~/.bashrc
 ```
 
+### 1.1.3. Stable Gripper Device Names
+The RH-P12-RN-A grippers enumerate as `/dev/ttyUSB<N>` in random order. Install a udev rule to pin each adapter to a fixed symlink (`/dev/dynamixel_left`, `/dev/dynamixel_right`):
+
+```bash
+sudo cp 99-dynamixel.rules /etc/udev/rules.d/ # located in franka_launch/udev
+sudo udevadm control --reload-rules && sudo udevadm trigger
+ls -l /dev/dynamixel_*
+```
+
 ## 1.2. Getting Started
 
-### 1.2.1. Unified Setup & Environment Initialization
-Initialize the Pixi environment and clone all dependencies (CRISP, Franka ROS 2, Dynamixel, etc.):
+### 1.2.1. Enter the ROS Environment
+Enter the Pixi shell first — `pixi run setup` calls `rosdep` which requires ROS to be available in PATH:
+```bash
+pixi shell -e humble
+```
+
+> [!NOTE]
+> This is a temporary requirement until `rosdep` is replaced with a pure Pixi-managed dependency resolution.
+
+### 1.2.2. Unified Setup & Environment Initialization
+Inside the shell, clone all dependencies (CRISP, Franka ROS 2, Dynamixel, etc.) and install system deps:
 ```bash
 pixi run setup
 ```
 > [!NOTE]
-> This command will automatically create the `.pixi` environment, clone repositories into `src/`, apply custom patches, and install dependencies via `rosdep` and `snap` (for `scrcpy`).
+> This clones repositories into `src/`, applies custom patches, and installs dependencies via `rosdep` and `snap` (for `scrcpy`).
 
-### 1.2.2. Enter the ROS Environment
-Before running any ROS commands, enter the Pixi shell:
+Then refresh the Pixi environment to ensure it is fully in sync with `pixi.lock`:
 ```bash
-pixi shell -e humble
+pixi install -e humble
 ```
 
 ### 1.2.3. Build the Workspace
@@ -60,6 +81,9 @@ Compile all C++ and Python packages:
 ```bash
 pixi run build
 ```
+
+> [!WARNING]
+> The build may fail partway through due to some internal problems with RAM. If this happens, simply rerun `pixi run build` — colcon will pick up where it left off. See backlog for details.
 
 ---
 

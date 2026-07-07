@@ -32,7 +32,7 @@ openssh = "*"
 test_raw = "pytest --cov-report=html"
 test = [{task="test_raw", environment="humble"}]
 setup = "bash scripts/setup.sh"
-build = "colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DBUILD_TESTING=OFF -DBUILD_TESTS=OFF -DBUILD_EXAMPLES=OFF"
+build = "colcon build --symlink-install --packages-skip franka_mobile --cmake-args -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DBUILD_TESTING=OFF -DBUILD_TESTS=OFF -DBUILD_EXAMPLES=OFF"
 clean = "rm -rf build install log"
 clean-build = [{ task = "clean" }, { task = "build" }]
 robot = "bash scripts/run_robot.sh"
