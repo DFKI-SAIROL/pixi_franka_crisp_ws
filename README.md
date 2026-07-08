@@ -82,6 +82,9 @@ Compile all C++ and Python packages:
 pixi run build
 ```
 
+> [!NOTE]
+> `config/robot_overrides.yaml` is the single source of truth for per-arm robot/gripper settings (IPs, controllers, etc.). Edit it to overwrite the defaults in `franka_launch/config`.
+
 > [!WARNING]
 > The build may fail partway through due to some internal problems with RAM. If this happens, simply rerun `pixi run build` — colcon will pick up where it left off. See backlog for details.
 

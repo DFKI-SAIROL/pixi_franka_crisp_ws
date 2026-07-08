@@ -1,0 +1,22 @@
+# Single source of truth for gripper/end-effector & per-arm robot config.
+
+# See franka_launch/config for any config parameters you wish to overwrite
+
+spawn_franka_left: true
+spawn_franka_right: true
+use_fake_hardware: false
+bypass_safety: true
+
+franka_left:
+  robot_ip: "192.168.1.4"
+  end_effector_frame: "franka_left_grasp_point"
+  gripper_port: "/dev/dynamixel_left"
+  gripper_type: "rh_p12_rn_a" # rh_p12_rn_a/default
+  arm_controller: "joint_impedance_controller" # joint_impedance_controller/joint_cartesian_controller
+
+franka_right:
+  robot_ip: "192.168.0.2"
+  end_effector_frame: "franka_right_grasp_point"
+  gripper_port: "/dev/dynamixel_right"
+  gripper_type: "rh_p12_rn_a" # rh_p12_rn_a/default
+  arm_controller: "joint_impedance_controller" # joint_impedance_controller/joint_cartesian_controller

@@ -45,8 +45,8 @@ if [ ! -d "franka_ros2" ]; then
     rm -rf ./franka_ros2/libfranka ./franka_ros2/franka_robot_state_broadcaster
     
     cd ./franka_ros2/ 
-    git clone --recurse-submodules https://git.ias.informatik.tu-darmstadt.de/ros2/franka/libfranka.git
-    git clone https://git.ias.informatik.tu-darmstadt.de/ros2/franka/franka_robot_state_broadcaster.git
+    git clone --recurse-submodules git@git.ias.informatik.tu-darmstadt.de:ros2/franka/libfranka.git
+    git clone git@git.ias.informatik.tu-darmstadt.de:ros2/franka/franka_robot_state_broadcaster.git
     cd ..
     
     vcs import ./franka_ros2 < ./franka_ros2/dependency.repos --recursive --skip-existing
@@ -62,10 +62,21 @@ fi
 
 cd "$SRC_DIR"
 
-# 3. Dynamixel components
-sync_repo "https://github.com/ROBOTIS-GIT/dynamixel_hardware_interface.git" "dynamixel_hardware_interface" "$ROS_DISTRO"
-sync_repo "https://github.com/ROBOTIS-GIT/DynamixelSDK.git" "DynamixelSDK" "$ROS_DISTRO"
-sync_repo "https://github.com/ROBOTIS-GIT/dynamixel_interfaces.git" "dynamixel_interfaces" "$ROS_DISTRO"
+# 3. Dynamixel components (only needed if some arm actually uses a Dynamixel gripper)
+OVERRIDES_FILE="$ROOT_DIR/config/robot_overrides.yaml"
+eval "$(pixi run -e humble python3 "$ROOT_DIR/scripts/python/read_overrides.py" "$OVERRIDES_FILE")"
+echo "config/robot_overrides.yaml: gripper_type_left=$gripper_type_left gripper_type_right=$gripper_type_right needs_dynamixel=$needs_dynamixel"
+
+if [ "$needs_dynamixel" = "true" ]; then
+    sync_repo "https://github.com/ROBOTIS-GIT/dynamixel_hardware_interface.git" "dynamixel_hardware_interface" "$ROS_DISTRO"
+    sync_repo "https://github.com/ROBOTIS-GIT/DynamixelSDK.git" "DynamixelSDK" "$ROS_DISTRO"
+    sync_repo "https://github.com/ROBOTIS-GIT/dynamixel_interfaces.git" "dynamixel_interfaces" "$ROS_DISTRO"
+elif false; then
+    # Placeholder for other hands/grippers
+    echo "add custom hands/grippers"
+else
+    echo "No arm uses a Dynamixel gripper (config/robot_overrides.yaml), skipping Dynamixel repos."
+fi
 
 # 4. CRISP components
 sync_repo "git@github.com:DFKI-SAIROL/crisp_py.git" "crisp_py"
