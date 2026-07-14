@@ -68,6 +68,7 @@ eval "$(pixi run -e humble python3 "$ROOT_DIR/scripts/python/read_overrides.py" 
 echo "config/robot_overrides.yaml: gripper_type_left=$gripper_type_left gripper_type_right=$gripper_type_right needs_dynamixel=$needs_dynamixel"
 
 if [ "$needs_dynamixel" = "true" ]; then
+    # pattern: sync_repo "git@path_to_the_repo" "repo_name" "repo_branch"
     sync_repo "https://github.com/ROBOTIS-GIT/dynamixel_hardware_interface.git" "dynamixel_hardware_interface" "$ROS_DISTRO"
     sync_repo "https://github.com/ROBOTIS-GIT/DynamixelSDK.git" "DynamixelSDK" "$ROS_DISTRO"
     sync_repo "https://github.com/ROBOTIS-GIT/dynamixel_interfaces.git" "dynamixel_interfaces" "$ROS_DISTRO"
@@ -79,15 +80,17 @@ else
 fi
 
 # 4. CRISP components
+# pattern: sync_repo "git@path_to_the_repo" "repo_name" "repo_branch"
 sync_repo "git@github.com:DFKI-SAIROL/crisp_py.git" "crisp_py"
 sync_repo "git@github.com:DFKI-SAIROL/crisp_gym.git" "crisp_gym"
 sync_repo "git@github.com:DFKI-SAIROL/crisp_controllers.git" "crisp_controllers"
 
 # 5. Misc
+# pattern: sync_repo "git@path_to_the_repo" "repo_name" "repo_branch"
 sync_repo "git@github.com:DFKI-SAIROL/robot_ik_layer.git" "robot_ik_layer"
 sync_repo "git@github.com:DFKI-SAIROL/robot_safety_layer.git" "robot_safety_layer"
 sync_repo "git@github.com:DFKI-SAIROL/franka_robot_description.git" "franka_robot_description"
-sync_repo "git@github.com:DFKI-SAIROL/franka_launch.git" "franka_launch"
+sync_repo "git@github.com:DFKI-SAIROL/franka_launch.git" "franka_launch" "feature/bspline"
 sync_repo "git@github.com:DFKI-SAIROL/franka_py.git" "franka_py"
 sync_repo "git@github.com:DFKI-SAIROL/franka_data_collection.git" "franka_data_collection"
 sync_repo "git@github.com:DFKI-SAIROL/franka_custom_msgs.git" "franka_custom_msgs"
