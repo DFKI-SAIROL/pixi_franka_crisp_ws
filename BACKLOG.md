@@ -4,10 +4,33 @@ Open tasks at the top, dated log of done/notable changes below. Newest first.
 
 ## Backlog / TODO
 - [ ] **Check the RAM** — `pixi run build` intermittently crashes `cc1plus` (suspected faulty RAM). Run `memtest86+` (several passes), reseat/replace DIMMs. Workaround for now: re-run the build a few times until it passes.
-- [ ] Move robot related configs to franka_launch
 - [ ] Remove rosdep from setup.sh
+- [ ] joint trajectory controller interpolators (move Puze's code for linear and bspline interpolation)
+- [?] remove two missing repos from IAS gitlab and move to DFKI
+- [x] Move robot related configs to franka_launch
+- [x] Option for installing the grippers in src/ 
+- [x] move msgs to the correct repo
+- [x] custom to aggregator from franka_py
+- [x] data_collection is a standalone package
+- [x] remove franka_ui
+- [x] place the link to the crisp documnetation in the top of our
+
 
 ## Log
+
+### 2026-09-07
+ - **Problem:** remove mock_components/GenericSystem which doesn't work with effort (crisp_controllers/src/cartesian_controller.cpp uses effort command interface to communicate with the robot)
+ - **Solution:** add fake_effort_hardware to handle the effort command interface and simulate the bimanual platform together with the real meta quest: https://github.com/DFKI-SAIROL/fake_effort_hardware
+
+### 2026-07-07
+
+#### cleaning/repos
+ - add franka_data_collection, franka_custom_msgs
+ - clean franka_py
+
+#### Add a condiition to see if the gripper is turned on
+  - **Problem:** The gripper is turned on separately, therefore an user might not notice that it's not turned on while launching the whole setup.
+  - **Solution** Before launching the whole setup, ping the grippers (if specified).
 
 ### 2026-06-23
 

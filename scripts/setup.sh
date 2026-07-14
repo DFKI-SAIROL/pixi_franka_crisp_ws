@@ -91,6 +91,8 @@ sync_repo "git@github.com:DFKI-SAIROL/franka_launch.git" "franka_launch"
 sync_repo "git@github.com:DFKI-SAIROL/franka_py.git" "franka_py"
 sync_repo "git@github.com:DFKI-SAIROL/franka_data_collection.git" "franka_data_collection"
 sync_repo "git@github.com:DFKI-SAIROL/franka_custom_msgs.git" "franka_custom_msgs"
+sync_repo "git@github.com:DFKI-SAIROL/bspline_controller.git" "bspline_controller"
+sync_repo "git@github.com:DFKI-SAIROL/fake_effort_hardware.git" "fake_effort_hardware"
 
 # System tools
 if ! command -v scrcpy &> /dev/null || [ "$(scrcpy --version | head -n 1 | grep -o '1\.')" = "1." ]; then

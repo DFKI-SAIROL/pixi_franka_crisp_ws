@@ -12,11 +12,11 @@ franka_left:
   end_effector_frame: "franka_left_grasp_point"
   gripper_port: "/dev/dynamixel_left"
   gripper_type: "rh_p12_rn_a" # rh_p12_rn_a/default
-  arm_controller: "joint_impedance_controller" # joint_impedance_controller/joint_cartesian_controller
+  arm_controller: "joint_impedance_controller" # joint_impedance_controller/joint_trajectory_controller/bspline_joint_controller
 
 franka_right:
   robot_ip: "192.168.0.2"
   end_effector_frame: "franka_right_grasp_point"
   gripper_port: "/dev/dynamixel_right"
   gripper_type: "rh_p12_rn_a" # rh_p12_rn_a/default
-  arm_controller: "joint_impedance_controller" # joint_impedance_controller/joint_cartesian_controller
+  arm_controller: "joint_impedance_controller" # joint_impedance_controller/joint_trajectory_controller/bspline_joint_controller

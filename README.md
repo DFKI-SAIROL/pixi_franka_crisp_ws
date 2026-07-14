@@ -12,6 +12,7 @@
     - [1.3.2. Teleoperation (Meta Quest VR)](#132-teleoperation-meta-quest-vr)
     - [1.3.3. Data Collection](#133-data-collection)
     - [1.3.4. Running a Policy](#134-running-a-policy)
+    - [1.3.5. Running in Simulation](#135-running-in-simulation)
   - [1.4. Advanced Usage](#14-advanced-usage)
     - [1.4.1. Environments](#141-environments)
     - [1.4.2. Additional Tasks](#142-additional-tasks)
@@ -145,6 +146,16 @@ To run a trained policy, follow these steps:
 >
 > [!CAUTION]
 > Keyboard keys will trigger actions as soon as the client is running. Be careful, as starting the policy by accident can be dangerous. Ensure you specify the correct policy checkpoint and type in the config file.
+
+### 1.3.5. Running in Simulation
+To run against fake/mock hardware instead of the physical arms (no robot connection required), set `use_fake_hardware: true` in `config/robot_overrides.yaml`:
+```yaml
+use_fake_hardware: true
+```
+Then launch as usual with `pixi run robot`.
+
+> [!NOTE]
+> Teleoperation still requires the physical Quest setup — `pixi run teleop` does not run in simulation.
 
 ---
 
