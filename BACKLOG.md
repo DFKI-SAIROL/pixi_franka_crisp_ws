@@ -4,9 +4,9 @@ Open tasks at the top, dated log of done/notable changes below. Newest first.
 
 ## Backlog / TODO
 - [ ] **Check the RAM** — `pixi run build` intermittently crashes `cc1plus` (suspected faulty RAM). Run `memtest86+` (several passes), reseat/replace DIMMs. Workaround for now: re-run the build a few times until it passes.
-- [ ] Remove rosdep from setup.sh
-- [ ] joint trajectory controller interpolators (move Puze's code for linear and bspline interpolation)
 - [?] remove two missing repos from IAS gitlab and move to DFKI
+- [x] Add Kay's config file for some tresholds: https://github.com/pompetzki/pixi_franka_ros2/blob/6d56274990ca0692217adebcd117da310c9b7381/scripts/launch/main.launch.py 
+- [x] joint trajectory controller interpolators (move Puze's code for linear and bspline interpolation)
 - [x] Move robot related configs to franka_launch
 - [x] Option for installing the grippers in src/ 
 - [x] move msgs to the correct repo
