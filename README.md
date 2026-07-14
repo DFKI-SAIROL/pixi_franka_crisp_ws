@@ -87,7 +87,7 @@ pixi run build
 > `config/robot_overrides.yaml` is the single source of truth for per-arm robot/gripper settings (IPs, controllers, etc.). Edit it to overwrite the defaults in `franka_launch/config`.
 
 > [!WARNING]
-> The build may fail partway through due to some internal problems with RAM. If this happens, simply rerun `pixi run build` — colcon will pick up where it left off. See backlog for details.
+> The build may fail partway through due to some internal problems with RAM. If this happens, simply rerun `pixi run build` — colcon will pick up where it left off. See backlog for details. This may require many rebuilds sometimes.
 
 ---
 
@@ -143,7 +143,7 @@ To run a trained policy, follow these steps:
 > - `h`: Drive to home position.
 > - `r`: Start the policy.
 > - `s`: Stop the policy.
->
+
 > [!CAUTION]
 > Keyboard keys will trigger actions as soon as the client is running. Be careful, as starting the policy by accident can be dangerous. Ensure you specify the correct policy checkpoint and type in the config file.
 
