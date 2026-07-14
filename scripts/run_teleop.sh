@@ -8,4 +8,4 @@ OVERRIDES_FILE="$ROOT_DIR/config/robot_overrides.yaml"
 eval "$(pixi run -e humble python3 "$ROOT_DIR/scripts/python/read_overrides.py" "$OVERRIDES_FILE")"
 
 pixi run -e humble \
-ros2 launch franka_meta_quest start.launch.py spawn_franka_left:=$spawn_franka_left  spawn_franka_right:=$spawn_franka_right
+ros2 launch franka_meta_quest start.launch.py spawn_franka_left:=$spawn_franka_left spawn_franka_right:=$spawn_franka_right overrides_file:=$OVERRIDES_FILE
