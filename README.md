@@ -1,3 +1,6 @@
+> [!NOTE]
+> This workspace is based on the **CRISP** ecosystem. For the full, original documentation, see <https://learnsyslab.github.io/crisp_controllers/>.
+
 - [1. CRISP Workspace](#1-crisp-workspace)
   - [1.1. Prerequisites](#11-prerequisites)
     - [1.1.1. SSH Key](#111-ssh-key)
@@ -21,10 +24,7 @@
 
 # 1. CRISP Workspace
 
-This repository provides a unified, **Pixi-managed** environment for the Franka Emika Panda robots, integrating the **CRISP** (C++ Real-time Impedance and Space Programming) ecosystem for high-performance, compliant control.
-
->[!NOTE] 
-> For any further details, see the original documentation [here](https://learnsyslab.github.io/crisp_controllers/).
+This repository provides a unified, **Pixi-managed** environment for the Franka Emika Panda robots, integrating the **CRISP** (C++ Real-time Impedance and Space Programming) ecosystem for high-perform[...]
 
 ## 1.1. Prerequisites
 
@@ -87,7 +87,7 @@ pixi run build
 > `config/robot_overrides.yaml` is the single source of truth for per-arm robot/gripper settings (IPs, controllers, etc.). Edit it to overwrite the defaults in `franka_launch/config`.
 
 > [!WARNING]
-> The build may fail partway through due to some internal problems with RAM. If this happens, simply rerun `pixi run build` — colcon will pick up where it left off. See backlog for details. This may require many rebuilds sometimes.
+> The build may fail partway through due to some internal problems with RAM. If this happens, simply rerun `pixi run build` — colcon will pick up where it left off. See backlog for details. This may[...]
 
 ---
 
@@ -145,7 +145,7 @@ To run a trained policy, follow these steps:
 > - `s`: Stop the policy.
 
 > [!CAUTION]
-> Keyboard keys will trigger actions as soon as the client is running. Be careful, as starting the policy by accident can be dangerous. Ensure you specify the correct policy checkpoint and type in the config file.
+> Keyboard keys will trigger actions as soon as the client is running. Be careful, as starting the policy by accident can be dangerous. Ensure you specify the correct policy checkpoint and type in the[...]
 
 ### 1.3.5. Running in Simulation
 To run against fake/mock hardware instead of the physical arms (no robot connection required), set `use_fake_hardware: true` in `config/robot_overrides.yaml`:
@@ -170,7 +170,7 @@ Then launch as usual with `pixi run robot`.
 ---
 ## 1.5. Troubleshooting
 ### 1.5.1. Left Arm Network Unreachable
-Occasionally, after restarting the PC or if the network interface goes down, the left Franka arm might become unreachable on the network. This usually happens when the dedicated network interface (`enp5s0`) loses its IP address configuration.
+Occasionally, after restarting the PC or if the network interface goes down, the left Franka arm might become unreachable on the network. This usually happens when the dedicated network interface (`en[...]
 To fix this, you need to manually assign the correct IP address (`192.168.1.100/24`) to the `enp5s0` interface.
 
 ```bash
