@@ -45,8 +45,8 @@ if [ ! -d "franka_ros2" ]; then
     rm -rf ./franka_ros2/libfranka ./franka_ros2/franka_robot_state_broadcaster
     
     cd ./franka_ros2/ 
-    git clone --recurse-submodules git@git.ias.informatik.tu-darmstadt.de:ros2/franka/libfranka.git
-    git clone git@git.ias.informatik.tu-darmstadt.de:ros2/franka/franka_robot_state_broadcaster.git
+    git clone --recurse-submodules git@github.com:DFKI-SAIROL/libfranka.git
+    git clone --recurse-submodules git@github.com:DFKI-SAIROL/franka_robot_state_broadcaster.git
     cd ..
     
     vcs import ./franka_ros2 < ./franka_ros2/dependency.repos --recursive --skip-existing
