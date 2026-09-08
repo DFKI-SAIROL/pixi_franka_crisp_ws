@@ -20,7 +20,10 @@ cmake = "*"
 pkg-config = "*"
 make = "*"
 ninja = "*"
-pinocchio = "*"
+# Pin below 4: pinocchio 4.0.0 reorganised its headers (e.g. pinocchio/spatial/se3.hpp moved
+# under pinocchio/deprecated/), which breaks crisp_controllers and franka_control_module.
+# Drop the pin once the sources are ported.
+pinocchio = ">=3,<4"
 pure-python-adb = ">=0.3.0.dev0,<0.4"
 pyqtgraph = ">=0.13.7,<0.14"
 libtmux = ">=0.46.2,<0.47"
@@ -32,6 +35,8 @@ openssh = "*"
 test_raw = "pytest --cov-report=html"
 test = [{task="test_raw", environment="humble"}]
 setup = "bash scripts/setup.sh"
+profiles = "python3 scripts/python/workspace.py profiles"
+update-src = "git submodule update --remote --merge"
 build = "colcon build --symlink-install --packages-skip franka_mobile --cmake-args -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DBUILD_TESTING=OFF -DBUILD_TESTS=OFF -DBUILD_EXAMPLES=OFF"
 clean = "rm -rf build install log"
 clean-build = [{ task = "clean" }, { task = "build" }]
@@ -115,10 +120,12 @@ pyzmq = ">=27.0.0,<28"
 pyserial = ">=3.5,<4"
 transforms3d = ">=0.4.2,<0.5"
 
+[feature.extra.dependencies]
+numpy = "<=2.3"
+
 [feature.extra.pypi-dependencies]
 rich = "*"  # For nice prints
 matplotlib = "*"  # to do some plots
-numpy = "*"
 
 [pypi-dependencies]
 yourdfpy = ">=0.0.58, <0.0.59"

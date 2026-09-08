@@ -5,6 +5,6 @@ build
 log
 install
 build
-src
-*/__pycache__/*
+/src/franka_ros2/
+__pycache__/
 pixi.lock

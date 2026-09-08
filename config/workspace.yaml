@@ -1,0 +1,97 @@
+# Source manifest for the workspace: which repositories exist, how they are grouped,
+# and which groups each install profile pulls in.
+#
+# Three levels, edited independently:
+#   repos    - identity of each repository (url, branch, pin, visibility)
+#   groups   - named bundles of repos; a repo belongs to exactly one group
+#   profiles - named install configurations; a profile is a list of groups
+#
+# Consumed by scripts/python/workspace.py, which scripts/setup.sh drives its clone loop from.
+# Select a profile with `pixi run setup <profile>`; it is remembered in
+# `git config --local workspace.profile`.
+
+version: 1
+
+repos:
+  # --- upstream / third party -------------------------------------------------
+  franka_ros2:
+    url: https://github.com/frankarobotics/franka_ros2.git
+    branch: "{ros_distro}"
+    rev: 7ed0458
+    visibility: public
+    # Handled by the bespoke block in setup.sh (subpackage deletions + nested clones
+    # + vcs import) rather than the generic loop. Remove once the DFKI fork lands.
+    special: true
+
+  libfranka:
+    url: git@github.com:DFKI-SAIROL/libfranka.git
+    # Moved off IAS GitLab 2026-08-27. Still private: anonymous https is denied.
+    # Flip to `public` (and switch the url to https) once the visibility change lands.
+    visibility: private
+    recurse_submodules: true
+    special: true   # cloned inside src/franka_ros2/ by the bespoke block
+
+  franka_robot_state_broadcaster:
+    url: git@github.com:DFKI-SAIROL/franka_robot_state_broadcaster.git
+    # Moved off IAS GitLab 2026-08-27; see the note on libfranka.
+    visibility: private
+    special: true   # cloned inside src/franka_ros2/ by the bespoke block
+
+  dynamixel_hardware_interface:
+    url: https://github.com/ROBOTIS-GIT/dynamixel_hardware_interface.git
+    branch: "{ros_distro}"
+    visibility: public
+
+  DynamixelSDK:
+    url: https://github.com/ROBOTIS-GIT/DynamixelSDK.git
+    branch: "{ros_distro}"
+    visibility: public
+
+  dynamixel_interfaces:
+    url: https://github.com/ROBOTIS-GIT/dynamixel_interfaces.git
+    branch: "{ros_distro}"
+    visibility: public
+
+  # --- CRISP ------------------------------------------------------------------
+  crisp_controllers: {url: "git@github.com:DFKI-SAIROL/crisp_controllers.git", visibility: public}
+  crisp_py:          {url: "git@github.com:DFKI-SAIROL/crisp_py.git",          visibility: public}
+  crisp_gym:         {url: "git@github.com:DFKI-SAIROL/crisp_gym.git",         visibility: public}
+
+  # --- DFKI platform ----------------------------------------------------------
+  franka_robot_description: {url: "git@github.com:DFKI-SAIROL/franka_robot_description.git", visibility: public}
+  franka_launch:            {url: "git@github.com:DFKI-SAIROL/franka_launch.git",            visibility: public}
+  robot_ik_layer:           {url: "git@github.com:DFKI-SAIROL/robot_ik_layer.git",           visibility: public}
+  robot_safety_layer:       {url: "git@github.com:DFKI-SAIROL/robot_safety_layer.git",       visibility: public}
+  franka_py:                {url: "git@github.com:DFKI-SAIROL/franka_py.git",                visibility: public}
+  franka_custom_msgs:       {url: "git@github.com:DFKI-SAIROL/franka_custom_msgs.git",       visibility: public}
+  franka_data_collection:   {url: "git@github.com:DFKI-SAIROL/franka_data_collection.git",   visibility: public}
+  fake_effort_hardware:     {url: "git@github.com:DFKI-SAIROL/fake_effort_hardware.git",     visibility: public}
+
+groups:
+  franka-base: [franka_ros2, libfranka, franka_robot_state_broadcaster,
+                franka_robot_description, franka_launch]
+  crisp:       [crisp_controllers, crisp_py, crisp_gym]
+  dynamixel:   [dynamixel_hardware_interface, DynamixelSDK, dynamixel_interfaces]
+  # franka_py is a multi-package repo: it ships franka_client, franka_control_module,
+  # franka_meta_quest (VR teleop), franka_visualization and zed_rig_aggregator_node.
+  # Groups cannot be finer-grained than repositories, so teleop is not separately
+  # selectable - it arrives with franka_py.
+  dfki-core:   [robot_ik_layer, robot_safety_layer, franka_py, franka_custom_msgs]
+  data:        [franka_data_collection]
+  sim:         [fake_effort_hardware]
+
+profiles:
+  # Full lab platform: both arms, Dynamixel grippers, VR teleop, data collection.
+  dfki:     [franka-base, crisp, dynamixel, dfki-core, data, sim]
+  # Fake hardware only - no gripper drivers, no teleop.
+  sim-only: [franka-base, crisp, dfki-core, sim]
+  # Smallest thing that builds and drives an arm.
+  minimal:  [franka-base, crisp]
+
+# Which group provides the driver for a given robot_overrides.yaml gripper_type.
+# Used to fail early when the selected profile cannot serve the configured hardware.
+gripper_requirements:
+  rh_p12_rn_a: dynamixel
+  dynamixel: dynamixel
+  franka_default: null
+  "None": null
