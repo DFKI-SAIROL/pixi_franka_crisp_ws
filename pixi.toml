@@ -118,7 +118,9 @@ transforms3d = ">=0.4.2,<0.5"
 [feature.extra.pypi-dependencies]
 rich = "*"  # For nice prints
 matplotlib = "*"  # to do some plots
-numpy = "*"
+
+[feature.extra.dependencies]
+numpy = "<=2.3"
 
 [pypi-dependencies]
 yourdfpy = ">=0.0.58, <0.0.59"

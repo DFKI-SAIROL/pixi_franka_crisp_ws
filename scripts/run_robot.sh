@@ -4,7 +4,7 @@ ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 OVERRIDES_FILE="$ROOT_DIR/config/robot_overrides.yaml"
 
 # Read defaults from config/robot_overrides.yaml (single source of truth,
-# also read by scripts/setup.sh and by the ROS2 launch files).
+# also read by the teleoperation script and ROS 2 launch files).
 eval "$(pixi run -e humble python3 "$ROOT_DIR/scripts/python/read_overrides.py" "$OVERRIDES_FILE")"
 echo "config/robot_overrides.yaml: spawn_franka_left=$spawn_franka_left spawn_franka_right=$spawn_franka_right use_fake_hardware=$use_fake_hardware bypass_safety=$bypass_safety gripper_type_left=$gripper_type_left gripper_type_right=$gripper_type_right"
 

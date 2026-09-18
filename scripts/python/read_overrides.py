@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Print config/robot_overrides.yaml as shell-sourceable KEY=VALUE lines.
 
-Used by scripts/run_robot.sh and scripts/setup.sh via:
+Used by scripts/run_robot.sh and scripts/run_teleop.sh via:
     eval "$(pixi run -e humble python3 scripts/python/read_overrides.py "$OVERRIDES_FILE")"
 """
 import sys

@@ -29,7 +29,7 @@ This repository provides a unified, **Pixi-managed** environment for the Franka 
 ## 1.1. Prerequisites
 
 ### 1.1.1. SSH Key
-Several private repositories are cloned via SSH during setup. Make sure your SSH key is added to your GitHub account before running `pixi run setup`:
+Several private Git submodules use SSH. Make sure your SSH key is added to your GitHub account before initializing them:
 ```bash
 # Generate a key if you don't have one
 ssh-keygen -t ed25519 -C "your_email@example.com"
@@ -65,12 +65,14 @@ pixi shell -e humble
 > This is a temporary requirement until `rosdep` is replaced with a pure Pixi-managed dependency resolution.
 
 ### 1.2.2. Unified Setup & Environment Initialization
-Inside the shell, clone all dependencies (CRISP, Franka ROS 2, Dynamixel, etc.) and install system deps:
+Inside the shell, initialize the pinned Git submodules and install ROS dependencies:
 ```bash
 pixi run setup
 ```
 > [!NOTE]
-> This clones repositories into `src/`, applies custom patches, and installs dependencies via `rosdep` and `snap` (for `scrcpy`).
+> This runs `git submodule update --init --recursive`, marks superseded upstream
+> Franka packages with `COLCON_IGNORE`, and installs dependencies via `rosdep`.
+> Install `scrcpy` 3.x separately if Quest audio support is needed.
 
 Then refresh the Pixi environment to ensure it is fully in sync with `pixi.lock`:
 ```bash
