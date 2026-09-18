@@ -5,7 +5,7 @@ OVERRIDES_FILE="$ROOT_DIR/config/robot_overrides.yaml"
 
 # Read defaults from config/robot_overrides.yaml (single source of truth,
 # also read by the teleoperation script and ROS 2 launch files).
-eval "$(pixi run -e humble python3 "$ROOT_DIR/scripts/python/read_overrides.py" "$OVERRIDES_FILE")"
+eval "$(pixi run -e humble python "$ROOT_DIR/scripts/python/read_overrides.py" "$OVERRIDES_FILE")"
 echo "config/robot_overrides.yaml: spawn_franka_left=$spawn_franka_left spawn_franka_right=$spawn_franka_right use_fake_hardware=$use_fake_hardware bypass_safety=$bypass_safety gripper_type_left=$gripper_type_left gripper_type_right=$gripper_type_right"
 
 check_gripper() {
@@ -15,7 +15,7 @@ check_gripper() {
         echo "Error: spawn_franka_${side} is true but gripper device $dev was not found."
         exit 1
     fi
-    if ! pixi run -e humble python3 "$(dirname "$0")/python/check_gripper.py" "$dev"; then
+    if ! pixi run -e humble python "$(dirname "$0")/python/check_gripper.py" "$dev"; then
         echo "Error: spawn_franka_${side} is true but the gripper on $dev is not responding. Is it powered on?"
         exit 1
     fi

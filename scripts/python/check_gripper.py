@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """Ping a Dynamixel gripper servo to confirm it is powered on and responding."""
 import sys
 

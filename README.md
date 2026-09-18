@@ -56,7 +56,7 @@ ls -l /dev/dynamixel_*
 ## 1.2. Getting Started
 
 ### 1.2.1. Enter the ROS Environment
-Enter the Pixi shell first — `pixi run setup` calls `rosdep` which requires ROS to be available in PATH:
+Enter the Pixi shell first — `pixi run -e humble setup` calls `rosdep` which requires ROS to be available in PATH:
 ```bash
 pixi shell -e humble
 ```
@@ -67,7 +67,7 @@ pixi shell -e humble
 ### 1.2.2. Unified Setup & Environment Initialization
 Inside the shell, initialize the pinned Git submodules and install ROS dependencies:
 ```bash
-pixi run setup
+pixi run -e humble setup
 ```
 > [!NOTE]
 > This runs `git submodule update --init --recursive`, marks superseded upstream
@@ -82,14 +82,14 @@ pixi install -e humble
 ### 1.2.3. Build the Workspace
 Compile all C++ and Python packages:
 ```bash
-pixi run build
+pixi run -e humble build
 ```
 
 > [!NOTE]
 > `config/robot_overrides.yaml` is the single source of truth for per-arm robot/gripper settings (IPs, controllers, etc.). Edit it to overwrite the defaults in `franka_launch/config`.
 
 > [!WARNING]
-> The build may fail partway through due to some internal problems with RAM. If this happens, simply rerun `pixi run build` — colcon will pick up where it left off. See backlog for details. This may[...]
+> The build may fail partway through due to some internal problems with RAM. If this happens, simply rerun `pixi run -e humble build` — colcon will pick up where it left off. See backlog for details. This may[...]
 
 ---
 
@@ -98,19 +98,19 @@ pixi run build
 ### 1.3.1. Base Launch (with Safety Layer & ZED)
 This command opens a tmux session with the Franka driver, the ZED aggregator, and the safety layer:
 ```bash
-pixi run robot
+pixi run -e humble robot
 ```
 
 ### 1.3.2. Teleoperation (Meta Quest VR)
 To start the VR teleoperation stack:
 ```bash
-pixi run teleop
+pixi run -e humble teleop
 ```
 
 ### 1.3.3. Data Collection
 To start a data collection run:
 ```bash
-pixi run data-collection
+pixi run -e humble data-collection
 ```
 
 ### 1.3.4. Running a Policy
@@ -123,11 +123,11 @@ To run a trained policy, follow these steps:
     ```
 2.  **Start Robot & Cameras**:
     ```bash
-    pixi run robot
+    pixi run -e humble robot
     ```
 3.  **Run Teleoperation**:
     ```bash
-    pixi run teleop
+    pixi run -e humble teleop
     ```
 4.  **Start Policy Server**:
     Run this from the `lerobot` environment:
@@ -137,7 +137,7 @@ To run a trained policy, follow these steps:
     ```
 5.  **Start Policy Client**:
     ```bash
-    pixi run client
+    pixi run -e humble client
     ```
 
 > [!IMPORTANT]
@@ -154,10 +154,10 @@ To run against fake/mock hardware instead of the physical arms (no robot connect
 ```yaml
 use_fake_hardware: true
 ```
-Then launch as usual with `pixi run robot`.
+Then launch as usual with `pixi run -e humble robot`.
 
 > [!NOTE]
-> Teleoperation still requires the physical Quest setup — `pixi run teleop` does not run in simulation.
+> Teleoperation still requires the physical Quest setup — `pixi run -e humble teleop` does not run in simulation.
 
 ---
 
@@ -167,7 +167,7 @@ Then launch as usual with `pixi run robot`.
 - **`humble`**: Default ROS 2 Humble environment.
 
 ### 1.4.2. Additional Tasks
-- **`pixi run clean`**: Removes `build`, `install`, and `log` directories.
+- **`pixi run -e humble clean`**: Removes `build`, `install`, and `log` directories.
 
 ---
 ## 1.5. Troubleshooting
