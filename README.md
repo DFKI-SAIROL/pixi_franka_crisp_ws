@@ -72,7 +72,9 @@ pixi run -e humble setup
 > [!NOTE]
 > This runs `git submodule update --init --recursive`, marks superseded upstream
 > Franka packages with `COLCON_IGNORE`, and installs dependencies via `rosdep`.
-> Install `scrcpy` 3.x separately if Quest audio support is needed.
+> Quest audio support is experimental and disabled by default. Install a compatible
+> `scrcpy` separately and pass `enable_audio:=true` to the
+> `franka_meta_quest` launch file if it is needed.
 
 Then refresh the Pixi environment to ensure it is fully in sync with `pixi.lock`:
 ```bash
