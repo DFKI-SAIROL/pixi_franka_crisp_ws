@@ -29,7 +29,7 @@ This repository provides a unified, **Pixi-managed** environment for the Franka 
 ## 1.1. Prerequisites
 
 ### 1.1.1. SSH Key
-Several private repositories are cloned via SSH during setup. Make sure your SSH key is added to your GitHub account before running `pixi run setup`:
+Several private Git submodules use SSH. Make sure your SSH key is added to your GitHub account before initializing them:
 ```bash
 # Generate a key if you don't have one
 ssh-keygen -t ed25519 -C "your_email@example.com"
@@ -56,7 +56,7 @@ ls -l /dev/dynamixel_*
 ## 1.2. Getting Started
 
 ### 1.2.1. Enter the ROS Environment
-Enter the Pixi shell first — `pixi run setup` calls `rosdep` which requires ROS to be available in PATH:
+Enter the Pixi shell first — `pixi run -e humble setup` calls `rosdep` which requires ROS to be available in PATH:
 ```bash
 pixi shell -e humble
 ```
@@ -65,12 +65,16 @@ pixi shell -e humble
 > This is a temporary requirement until `rosdep` is replaced with a pure Pixi-managed dependency resolution.
 
 ### 1.2.2. Unified Setup & Environment Initialization
-Inside the shell, clone all dependencies (CRISP, Franka ROS 2, Dynamixel, etc.) and install system deps:
+Inside the shell, initialize the pinned Git submodules and install ROS dependencies:
 ```bash
-pixi run setup
+pixi run -e humble setup
 ```
 > [!NOTE]
-> This clones repositories into `src/`, applies custom patches, and installs dependencies via `rosdep` and `snap` (for `scrcpy`).
+> This runs `git submodule update --init --recursive`, marks superseded upstream
+> Franka packages with `COLCON_IGNORE`, and installs dependencies via `rosdep`.
+> Quest audio support is experimental and disabled by default. Install a compatible
+> `scrcpy` separately and pass `enable_audio:=true` to the
+> `franka_meta_quest` launch file if it is needed.
 
 Then refresh the Pixi environment to ensure it is fully in sync with `pixi.lock`:
 ```bash
@@ -80,14 +84,14 @@ pixi install -e humble
 ### 1.2.3. Build the Workspace
 Compile all C++ and Python packages:
 ```bash
-pixi run build
+pixi run -e humble build
 ```
 
 > [!NOTE]
 > `config/robot_overrides.yaml` is the single source of truth for per-arm robot/gripper settings (IPs, controllers, etc.). Edit it to overwrite the defaults in `franka_launch/config`.
 
 > [!WARNING]
-> The build may fail partway through due to some internal problems with RAM. If this happens, simply rerun `pixi run build` — colcon will pick up where it left off. See backlog for details. This may[...]
+> The build may fail partway through due to some internal problems with RAM. If this happens, simply rerun `pixi run -e humble build` — colcon will pick up where it left off. See backlog for details. This may[...]
 
 ---
 
@@ -96,19 +100,19 @@ pixi run build
 ### 1.3.1. Base Launch (with Safety Layer & ZED)
 This command opens a tmux session with the Franka driver, the ZED aggregator, and the safety layer:
 ```bash
-pixi run robot
+pixi run -e humble robot
 ```
 
 ### 1.3.2. Teleoperation (Meta Quest VR)
 To start the VR teleoperation stack:
 ```bash
-pixi run teleop
+pixi run -e humble teleop
 ```
 
 ### 1.3.3. Data Collection
 To start a data collection run:
 ```bash
-pixi run data-collection
+pixi run -e humble data-collection
 ```
 
 ### 1.3.4. Running a Policy
@@ -121,11 +125,11 @@ To run a trained policy, follow these steps:
     ```
 2.  **Start Robot & Cameras**:
     ```bash
-    pixi run robot
+    pixi run -e humble robot
     ```
 3.  **Run Teleoperation**:
     ```bash
-    pixi run teleop
+    pixi run -e humble teleop
     ```
 4.  **Start Policy Server**:
     Run this from the `lerobot` environment:
@@ -135,7 +139,7 @@ To run a trained policy, follow these steps:
     ```
 5.  **Start Policy Client**:
     ```bash
-    pixi run client
+    pixi run -e humble client
     ```
 
 > [!IMPORTANT]
@@ -152,10 +156,10 @@ To run against fake/mock hardware instead of the physical arms (no robot connect
 ```yaml
 use_fake_hardware: true
 ```
-Then launch as usual with `pixi run robot`.
+Then launch as usual with `pixi run -e humble robot`.
 
 > [!NOTE]
-> Teleoperation still requires the physical Quest setup — `pixi run teleop` does not run in simulation.
+> Teleoperation still requires the physical Quest setup — `pixi run -e humble teleop` does not run in simulation.
 
 ---
 
@@ -165,7 +169,7 @@ Then launch as usual with `pixi run robot`.
 - **`humble`**: Default ROS 2 Humble environment.
 
 ### 1.4.2. Additional Tasks
-- **`pixi run clean`**: Removes `build`, `install`, and `log` directories.
+- **`pixi run -e humble clean`**: Removes `build`, `install`, and `log` directories.
 
 ---
 ## 1.5. Troubleshooting

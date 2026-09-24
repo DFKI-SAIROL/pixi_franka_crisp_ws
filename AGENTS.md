@@ -1,0 +1,1 @@
+- Only change code in git submodules if it is really necessary

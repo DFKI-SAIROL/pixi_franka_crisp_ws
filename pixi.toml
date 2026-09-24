@@ -20,7 +20,8 @@ cmake = "*"
 pkg-config = "*"
 make = "*"
 ninja = "*"
-pinocchio = "*"
+ccache = "*"
+pinocchio = "<4"
 pure-python-adb = ">=0.3.0.dev0,<0.4"
 pyqtgraph = ">=0.13.7,<0.14"
 libtmux = ">=0.46.2,<0.47"
@@ -32,9 +33,13 @@ openssh = "*"
 test_raw = "pytest --cov-report=html"
 test = [{task="test_raw", environment="humble"}]
 setup = "bash scripts/setup.sh"
-build = "colcon build --symlink-install --packages-skip franka_mobile --cmake-args -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DBUILD_TESTING=OFF -DBUILD_TESTS=OFF -DBUILD_EXAMPLES=OFF"
+build_raw = "MAKEFLAGS='-j4 -l4' colcon build --parallel-workers 4 --symlink-install --cmake-args -G Ninja -Wno-dev -Wno-deprecated --no-warn-unused-cli -DCOAL_DISABLE_HPP_FCL_WARNINGS=ON -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DBUILD_TESTING=OFF -DBUILD_TESTS=OFF -DBUILD_EXAMPLES=OFF"
+build = [{ task = "build_raw", environment = "humble" }]
 clean = "rm -rf build install log"
-clean-build = [{ task = "clean" }, { task = "build" }]
+clean-build = [
+    { task = "clean", environment = "humble" },
+    { task = "build_raw", environment = "humble" },
+]
 robot = "bash scripts/run_robot.sh"
 teleop = "bash scripts/run_teleop.sh"
 client = "bash scripts/run_client.sh"
@@ -118,7 +123,9 @@ transforms3d = ">=0.4.2,<0.5"
 [feature.extra.pypi-dependencies]
 rich = "*"  # For nice prints
 matplotlib = "*"  # to do some plots
-numpy = "*"
+
+[feature.extra.dependencies]
+numpy = "<=2.3"
 
 [pypi-dependencies]
 yourdfpy = ">=0.0.58, <0.0.59"

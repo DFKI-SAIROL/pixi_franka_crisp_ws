@@ -1,10 +1,119 @@
-# pixi environments
-.pixi
-.
-build
-log
-install
-build
-src
-*/__pycache__/*
-pixi.lock
+# -----------------------------------------------------------------------------
+# ROS / ROS 2 build workspaces
+# -----------------------------------------------------------------------------
+build/
+install/
+log/
+log_latest/
+devel/
+devel_isolated/
+build_isolated/
+install_isolated/
+.catkin_tools/
+.colcon/
+.ros/
+
+# rosbag recordings
+rosbag2_*/
+*.bag
+*.bag.active
+*.db3
+*.mcap
+
+# CMake / build-system artifacts outside the normal colcon directories
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+compile_commands.json
+.ninja_deps
+.ninja_log
+build.ninja
+
+# -----------------------------------------------------------------------------
+# Python
+# -----------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Native extensions and packaging output
+*.so
+*.dylib
+*.egg
+*.egg-info/
+.eggs/
+dist/
+sdist/
+wheels/
+pip-wheel-metadata/
+MANIFEST
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Test, type-checker, linter, and coverage caches
+.pytest_cache/
+.mypy_cache/
+.pyright/
+.ruff_cache/
+.hypothesis/
+.tox/
+.nox/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# -----------------------------------------------------------------------------
+# PyTorch / ML experiments
+# -----------------------------------------------------------------------------
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.safetensors
+checkpoints/
+lightning_logs/
+runs/
+wandb/
+mlruns/
+torch_compile_debug/
+events.out.tfevents.*
+
+# -----------------------------------------------------------------------------
+# Pixi and uv
+# -----------------------------------------------------------------------------
+.pixi/
+.uv-cache/
+
+# Lockfiles are intentionally committed for reproducible environments.
+!pixi.lock
+!uv.lock
+
+# -----------------------------------------------------------------------------
+# Local configuration and credentials
+# -----------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+*.local
+
+# -----------------------------------------------------------------------------
+# Editors, OS files, and local agent state
+# -----------------------------------------------------------------------------
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+/.agents/
+/.codex/
