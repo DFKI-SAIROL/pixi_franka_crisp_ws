@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- config/fastdds_config.xml with a large shared memory segment, for the camera snapshot publisher
+     (zed_rig_aggregator, scripts/run_robot.sh) only: every participant allocates its segment in /dev/shm, and the
+     segment size of the publisher is what counts (subscribers with the normal profile receive all snapshots). -->
+<dds xmlns="http://eprosima.com">
+    <profiles>
+
+        <transport_descriptors>
+            <transport_descriptor>
+                <transport_id>udp_transport</transport_id>
+                <type>UDPv4</type>
+                <maxInitialPeersRange>100</maxInitialPeersRange>
+                <interfaceWhiteList>
+                    <address>127.0.0.1</address>
+                    <address>192.168.10.100</address>
+                </interfaceWhiteList>
+            </transport_descriptor>
+            <transport_descriptor>
+                <transport_id>shm_transport</transport_id>
+                <type>SHM</type>
+                <!-- 64 MB instead of the 512 kB default: a zed_rig RigSnapshot (3 cameras RGB + depth) is ~14 MB. Too big
+                     for the default segment it went over fragmented best-effort UDP loopback, and most snapshots were
+                     lost before reaching the data collector (2026-11-07) -->
+                <segment_size>67108864</segment_size>
+            </transport_descriptor>
+        </transport_descriptors>
+
+        <data_writer profile_name="default_async_writer" is_default_profile="true">
+            <qos>
+                <publishMode>
+                    <kind>ASYNCHRONOUS</kind>
+                </publishMode>
+            </qos>
+            <historyMemoryPolicy>PREALLOCATED_WITH_REALLOC</historyMemoryPolicy>
+        </data_writer>
+
+        <participant profile_name="pc_participant" is_default_profile="true">
+            <rtps>
+                <userTransports>
+                    <transport_id>shm_transport</transport_id>
+                    <transport_id>udp_transport</transport_id>
+                </userTransports>
+                <!-- do NOT disable builtin transports here -->
+                <builtin>
+                    <initialPeersList>
+                        <locator><udpv4><address>192.168.10.212</address></udpv4></locator>
+                        <locator><udpv4><address>192.168.10.100</address></udpv4></locator>
+                        <locator><udpv4><address>127.0.0.1</address></udpv4></locator>
+                    </initialPeersList>
+                </builtin>
+            </rtps>
+        </participant>
+
+    </profiles>
+</dds>

@@ -17,6 +17,8 @@ else
     fi
 fi
 
+export FASTRTPS_DEFAULT_PROFILES_FILE="${FASTRTPS_DEFAULT_PROFILES_FILE:-${PIXI_PROJECT_ROOT:-$(pwd)}/config/fastdds_config.xml}"
+
 WORKSPACE_SETUP="${PIXI_PROJECT_ROOT:-$(pwd)}/install/setup.bash"
 if [ -f "$WORKSPACE_SETUP" ]; then
     . "$WORKSPACE_SETUP"

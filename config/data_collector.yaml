@@ -1,0 +1,45 @@
+# franka_data_collection config for this workspace (scripts/run_data_collection.sh). Copy of the package default
+# (src/franka_data_collection/config/data_collector.yaml) with the camera extrinsics filled in.
+node_name: "data_collector"
+storage_path: "/home/xiaoqi/projects/data"
+
+topics:
+  # robot state
+  - "/franka_left/franka/joint_states"
+  - "/franka_left/franka_gripper/joint_states"
+  - "/franka_right/franka/joint_states"
+  - "/franka_right/franka_gripper/joint_states"
+  # teleop (franka_meta_quest drives every spawned arm): VR target / delta pose and gripper commands
+  - "/franka_left/mq_debug"
+  - "/franka_left/gripper/gripper_controller/joint_trajectory"
+  - "/franka_right/mq_debug"
+  - "/franka_right/gripper/gripper_controller/joint_trajectory"
+  # commanded targets after the safety layer
+  - "/franka_left/safe_target_pose"
+  - "/franka_left/target_joint"
+  - "/franka_right/safe_target_pose"
+  - "/franka_right/target_joint"
+  # frames (robot mounting, camera calibration)
+  - "/tf_static"
+#  - "/zed_rig/synced_raw_snapshot"
+
+videos:
+  topic: "/zed_rig/synced_raw_snapshot"
+  camera_fps: 15.0  # = pub_frame_rate in config/zed/camera_params.yaml (video frame rate of the encoded files)
+  # Paths to measured, fixed T_parent_child transforms. Relative paths use this YAML's directory.
+  # Cameras listed here get their extrinsic and CameraInfo stored with each episode; recording refuses to start
+  # until every listed file exists and passes validation. Unlisted cameras are recorded without calibration.
+  extrinsics:
+    # zed_middle: "camera_extrinsics/zed_middle.yaml"  # not calibrated yet
+    zed_right: "camera_extrinsics/zed_right.yaml"
+  cameras:
+    - name: zed_middle
+      type: rgb
+    - name: zed_right
+      type: rgb
+    - name: zed_right_arm
+      type: rgb
+  codec:
+    rgb: h264
+    depth: ffv1        # used when depth cameras are enabled
+    crf: 23

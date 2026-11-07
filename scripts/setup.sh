@@ -14,7 +14,6 @@ git -C "$ROOT_DIR" submodule update --init --recursive
 # workspace. COLCON_IGNORE keeps the franka_ros2 submodule pristine apart from
 # untracked marker files and avoids maintaining a fork solely to delete them.
 for package in \
-    franka_fr3_moveit_config \
     franka_gazebo \
     franka_gazebo_bringup \
     franka_mobile_example_controllers \
@@ -38,7 +37,7 @@ fi
 . /etc/os-release
 ROSDEP_OS="${ID}:${VERSION_CODENAME:-${VERSION_ID}}"
 ROSDEP_SKIP_KEYS="Eigen3 ignition-plugin franka_ign_ros2_control"
-ROSDEP_SKIP_KEYS+=" franka_fr3_moveit_config franka_gazebo_bringup"
+ROSDEP_SKIP_KEYS+=" franka_gazebo_bringup"
 
 rosdep install \
     --from-paths "$ROOT_DIR/src" \

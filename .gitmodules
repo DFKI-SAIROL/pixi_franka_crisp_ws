@@ -59,3 +59,9 @@
 [submodule "src/olvx_descriptions_module"]
 	path = src/olvx_descriptions_module
 	url = https://github.com/olive-robotics/olvx_descriptions_module.git
+[submodule "src/zed_remote_launcher"]
+	path = src/zed_remote_launcher
+	url = git@github.com:DFKI-SAIROL/zed_remote_launcher.git
+[submodule "src/moveit_calibration"]
+	path = src/moveit_calibration
+	url = https://github.com/meschi/moveit_calibration.git

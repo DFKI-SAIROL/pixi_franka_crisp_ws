@@ -1,0 +1,14 @@
+# ZED parameter overrides for all CSIL cameras (config/zed/zed.launch.py), on top of the Jetson's zed_wrapper defaults
+# (SVGA 960x600, max_depth 1.5 m, depth_confidence 30).
+#
+# NEURAL depth as `launch_zed.sh csil depth`, but grabbed and published at 15 Hz instead of 120/60 Hz. NEURAL depth
+# on three cameras saturates the Jetson GPU: at 120/60 Hz (and still at 30/30 Hz) each camera delivered only ~20-22 Hz
+# with irregular gaps; at 15 Hz all three deliver a steady 15 Hz, hardware-synchronized (2026-11-07).
+# Keep camera_fps in config/data_collector.yaml equal to pub_frame_rate.
+/**:
+    ros__parameters:
+        general:
+            grab_frame_rate: 15 # SVGA: 120, 60, 30, 15
+            pub_frame_rate: 15.0
+        depth:
+            depth_mode: 'NEURAL'

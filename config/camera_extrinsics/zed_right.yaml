@@ -1,0 +1,8 @@
+# T_parent_child of zed_right (ZED X, serial 49078146), mounted in the middle position at 40 deg.
+# MoveIt 2 hand-eye calibration (eye-to-hand), same values as
+# src/zed_remote_launcher/config/calibration/030726_zedx_middle_40deg.launch.py, which publishes the pose in TF.
+# Update both together after a recalibration.
+parent_frame: world
+child_frame: zed_right_left_camera_optical_frame
+translation_m: [-0.147503, 0.0582272, 0.569425]
+quaternion_xyzw: [-0.629129, 0.650286, -0.299402, 0.302792]

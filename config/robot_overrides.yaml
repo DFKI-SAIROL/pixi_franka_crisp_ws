@@ -21,5 +21,5 @@ franka_right:
   robot_ip: "192.168.0.2"
   end_effector_frame: auto
   gripper_port: "/dev/dynamixel_right"
-  gripper_type: None #"rh_p12_rn_a" # rh_p12_rn_a/franka_default/None
+  gripper_type: "rh_p12_rn_a" # rh_p12_rn_a/franka_default/None
   arm_controller: "joint_impedance_controller" # joint_impedance_controller/joint_trajectory_controller/bspline_joint_controller
