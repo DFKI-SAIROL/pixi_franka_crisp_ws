@@ -2,7 +2,10 @@
 
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 OVERRIDES_FILE="$ROOT_DIR/config/robot_overrides.yaml"
-export FASTRTPS_DEFAULT_PROFILES_FILE="$ROOT_DIR/config/fastdds_config.xml"
+# The robot, camera-calibration and IK nodes use the default Fast DDS settings (as before 2026-11-02, when every node
+# got config/fastdds_config.xml and the arm controller managers stopped loading their controllers reliably). Only
+# the camera snapshot publisher uses an own profile (AGGREGATOR_FASTDDS).
+unset FASTRTPS_DEFAULT_PROFILES_FILE
 
 pixi run -e humble python \
     "$ROOT_DIR/scripts/python/check_robot_config.py" "$OVERRIDES_FILE" || exit 1
@@ -31,10 +34,10 @@ fi
 
 # Use tmux to open multiple terminals side-by-side
 SESSION="robot_run"
-tmux new-session -d -s $SESSION "FASTRTPS_DEFAULT_PROFILES_FILE=$FASTRTPS_DEFAULT_PROFILES_FILE pixi run -e humble ros2 launch franka_launch example.launch.py overrides_file:=$OVERRIDES_FILE ; exec bash"
-tmux split-window -h -t $SESSION "FASTRTPS_DEFAULT_PROFILES_FILE=$FASTRTPS_DEFAULT_PROFILES_FILE pixi run -e humble $ZED_CMD ; exec bash"
+tmux new-session -d -s $SESSION "unset FASTRTPS_DEFAULT_PROFILES_FILE; pixi run -e humble ros2 launch franka_launch example.launch.py overrides_file:=$OVERRIDES_FILE ; exec bash"
+tmux split-window -h -t $SESSION "unset FASTRTPS_DEFAULT_PROFILES_FILE; pixi run -e humble $ZED_CMD ; exec bash"
 tmux split-window -v -t $SESSION "FASTRTPS_DEFAULT_PROFILES_FILE=$AGGREGATOR_FASTDDS pixi run -e humble $AGGREGATOR_CMD ; exec bash"
-tmux split-window -v -t $SESSION "FASTRTPS_DEFAULT_PROFILES_FILE=$FASTRTPS_DEFAULT_PROFILES_FILE pixi run -e humble $ENSURE_CONTROLLERS_CMD ; FASTRTPS_DEFAULT_PROFILES_FILE=$FASTRTPS_DEFAULT_PROFILES_FILE pixi run -e humble ros2 launch robot_ik_layer start_ijk.launch.py overrides_file:=$OVERRIDES_FILE ; exec bash"
+tmux split-window -v -t $SESSION "unset FASTRTPS_DEFAULT_PROFILES_FILE; pixi run -e humble $ENSURE_CONTROLLERS_CMD ; pixi run -e humble ros2 launch robot_ik_layer start_ijk.launch.py overrides_file:=$OVERRIDES_FILE ; exec bash"
 
 echo "Started robot launch nodes in a tmux session."
 tmux attach-session -t $SESSION
