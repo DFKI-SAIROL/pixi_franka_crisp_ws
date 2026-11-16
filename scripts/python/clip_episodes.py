@@ -1,15 +1,21 @@
 #!/usr/bin/env python3
-"""Cut the end of recorded episodes at the last teleoperation command.
+"""Cut the go-home motion off the end of recorded episodes.
 
-After a demonstration the operator sends the arm home with a button. That motion is
-still recorded (the robot follows `safe_target_pose` with teleop disabled), but it is
-not part of the demonstration. This script finds the last moment `movement_enabled`
-was true in `/franka_<arm>/mq_debug` and cuts the episode there:
+After a demonstration the operator releases the gripper, waits for it to open and then
+sends the arm home with a button. The home motion is still recorded (the robot follows
+`safe_target_pose` with teleop disabled), but it is not part of the demonstration.
 
-- every video in `videos/` keeps exactly the frames whose stamp is <= the cut time
-  (stream copy, no re-encoding; the decoded frames are checked against the originals);
+This script finds where the home motion starts: the first commanded target, after the
+last moment `movement_enabled` was true in `/franka_<arm>/mq_debug`, that is more than
+HOME_MOTION_M away from the target at that moment. It cuts the episode just before it, so
+the pause in which the gripper opens is kept (the same ending as episodes recorded without
+the home button). Episodes without a home motion are copied unchanged.
+
+- every video in `videos/` keeps the frames recorded before the cut (stream copy when the
+  B-frame groups allow an exact cut, at most MAX_FRAMES_LOST frames early; otherwise the
+  affected videos are re-encoded at high quality and checked by PSNR);
 - `videos/timestamps.npy` is cut to the same frames;
-- the mcap keeps the messages received up to the cut time (all topics, incl. /tf_static);
+- the mcap keeps the messages received up to the next (removed) frame, all topics;
 - `calibration/` is copied unchanged.
 
 Frame i of every video still has stamp timestamps[i], so actions and camera frames stay
@@ -25,7 +31,6 @@ Usage (from the workspace root):
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import shutil
 import subprocess
@@ -35,28 +40,57 @@ from pathlib import Path
 import numpy as np
 
 
-def last_teleop_time(mcap_dir: Path) -> tuple[float | None, list[str]]:
-    """Latest header stamp [s] with movement_enabled == True over all arms."""
+HOME_MOTION_M = 0.002  # target displacement that marks the start of the home motion
+GRIPPER_OPEN = 0.02  # rh_r1 position below which the gripper counts as open (closed is about 0.83)
+
+
+def _stamp(header) -> float:
+    return header.stamp.sec + header.stamp.nanosec * 1e-9
+
+
+def find_home_start(mcap_dir: Path) -> dict:
+    """Last teleop moment, start of the home motion (None if there is none) and gripper state, per episode."""
     import rosbag2_py
     from rclpy.serialization import deserialize_message
     from rosidl_runtime_py.utilities import get_message
 
     reader = rosbag2_py.SequentialReader()
     reader.open(rosbag2_py.StorageOptions(uri=str(mcap_dir), storage_id="mcap"), rosbag2_py.ConverterOptions("", ""))
-    topics = {t.name: t.type for t in reader.get_all_topics_and_types() if t.name.endswith("/mq_debug")}
-    if not topics:
-        return None, []
-    reader.set_filter(rosbag2_py.StorageFilter(topics=list(topics)))
-    classes = {name: get_message(kind) for name, kind in topics.items()}
-    last, arms = None, set()
+    types = {t.name: t.type for t in reader.get_all_topics_and_types()}
+    wanted = [n for n in types if n.endswith(("/mq_debug", "/safe_target_pose", "/franka_gripper/joint_states"))]
+    reader.set_filter(rosbag2_py.StorageFilter(topics=wanted))
+    classes = {name: get_message(types[name]) for name in wanted}
+    last_on: dict[str, float] = {}
+    targets: dict[str, list] = {}
+    gripper: dict[str, list] = {}
     while reader.has_next():
         topic, data, _ = reader.read_next()
+        arm = topic.split("/")[1]
         msg = deserialize_message(data, classes[topic])
-        if msg.movement_enabled:
-            stamp = msg.header.stamp.sec + msg.header.stamp.nanosec * 1e-9
-            last = stamp if last is None else max(last, stamp)
-            arms.add(topic.split("/")[1])
-    return last, sorted(arms)
+        if topic.endswith("/mq_debug"):
+            if msg.movement_enabled:
+                last_on[arm] = max(last_on.get(arm, 0.0), _stamp(msg.header))
+        elif topic.endswith("/safe_target_pose"):
+            p = msg.pose.position
+            targets.setdefault(arm, []).append((_stamp(msg.header), p.x, p.y, p.z))
+        elif msg.position:
+            gripper.setdefault(arm, []).append((_stamp(msg.header), msg.position[0]))
+    if not last_on:
+        raise RuntimeError("teleop was never enabled (no movement_enabled in mq_debug)")
+
+    home = None
+    for arm, t_on in last_on.items():
+        tgt = np.array(targets.get(arm, []))
+        if not len(tgt):
+            continue
+        k = min(np.searchsorted(tgt[:, 0], t_on), len(tgt) - 1)
+        moved = (tgt[:, 0] > t_on) & (np.linalg.norm(tgt[:, 1:] - tgt[k, 1:], axis=1) > HOME_MOTION_M)
+        if moved.any():
+            start = float(tgt[np.flatnonzero(moved)[0], 0])
+            home = start if home is None else min(home, start)
+    result = {"arms": sorted(last_on), "last_teleop": max(last_on.values()), "home_start": home}
+    result["gripper"] = {arm: np.array(g) for arm, g in gripper.items() if arm in last_on and g}
+    return result
 
 
 def clip_mcap(src_dir: Path, dst_dir: Path, cut_ns: int) -> tuple[int, int]:
@@ -150,38 +184,60 @@ def reencode_video(src: Path, dst: Path, frames: int) -> float:
     return psnr
 
 
-def clip_episode(src: Path, dst: Path, margin_s: float, dry_run: bool) -> dict:
+def clip_episode(src: Path, dst: Path, dry_run: bool) -> dict:
     stamps = np.load(src / "videos" / "timestamps.npy")
-    last_on, arms = last_teleop_time(src / "mcap")
-    if last_on is None:
-        raise RuntimeError(f"{src.name}: teleop was never enabled (no movement_enabled in mq_debug)")
-    teleop_end_ns = int(round((last_on + margin_s) * 1e9))
-    wanted = int((stamps <= teleop_end_ns).sum())
+    found = find_home_start(src / "mcap")
+    info = {
+        "episode": src.name,
+        "arms": found["arms"],
+        "frames_before": len(stamps),
+        "last_teleop_s_from_start": round(found["last_teleop"] - stamps[0] * 1e-9, 2),
+    }
+    if found["home_start"] is None:
+        info.update(frames_after=len(stamps), removed_s=0.0, copied_unchanged=True)
+        if not dry_run:
+            if dst.exists():
+                raise RuntimeError(f"{dst} exists; remove it first")
+            shutil.copytree(src, dst)
+        return info
+    home_ns = int(round(found["home_start"] * 1e9))
+    wanted = int((stamps < home_ns).sum())
     # Largest frame count <= wanted at which every video can be cut exactly without re-encoding.
     videos = sorted(v for v in (src / "videos").iterdir() if v.suffix in (".mp4", ".mkv"))
     points = {video: exact_cut_points(video) for video in videos}
     common = set.intersection(*points.values())
-    candidates = [n for n in common if wanted - MAX_FRAMES_LOST <= n <= wanted]
+
+    def gripper_at(n: int) -> dict:
+        t = stamps[n - 1] * 1e-9  # last kept frame
+        return {arm: round(float(np.interp(t, g[:, 0], g[:, 1])), 3) for arm, g in found["gripper"].items()}
+
+    def opened(n: int) -> bool:
+        return all(v < GRIPPER_OPEN for v in gripper_at(n).values())
+
+    # Cutting a few frames early avoids re-encoding, but only while the gripper is already open there.
+    candidates = [n for n in common if wanted - MAX_FRAMES_LOST <= n <= wanted and (n == wanted or opened(n))]
     if candidates:
         frames = max(candidates)
+    elif not opened(wanted):
+        frames = wanted  # keep every frame of the gripper opening; re-encode where needed
     else:
         # The cameras' B-frame groups are out of phase: pick the cut (at most MAX_FRAMES_LOST early)
         # that most videos can take as a stream copy; the others get re-encoded.
-        window = range(max(1, wanted - MAX_FRAMES_LOST), wanted + 1)
+        window = [n for n in range(max(1, wanted - MAX_FRAMES_LOST), wanted + 1) if opened(n)]
         frames = max(window, key=lambda n: (sum(n in p for p in points.values()), n))
     reencode = [v.name for v in videos if frames not in points[v]]
-    # Robot data runs until the next (removed) frame, so the last kept frame keeps its full interval.
+    # Robot data runs until the next (removed) frame, so the last kept frame keeps its full interval,
+    # but stops before the home motion starts.
     cut_ns = int(stamps[frames]) - 1 if frames < len(stamps) else int(stamps[-1])
-    info = {
-        "episode": src.name,
-        "arms": arms,
-        "frames_before": len(stamps),
-        "frames_after": frames,
-        "frames_lost_to_gop": wanted - frames,
-        "reencoded": reencode,
-        "teleop_end_s_from_start": round((teleop_end_ns - stamps[0]) * 1e-9, 2),
-        "removed_s": round((stamps[-1] - stamps[frames - 1]) * 1e-9, 2),
-    }
+    cut_ns = min(cut_ns, home_ns - 1)  # never include home-motion commands
+    info.update(
+        frames_after=frames,
+        frames_lost_to_gop=wanted - frames,
+        reencoded=reencode,
+        home_start_s_from_start=round((home_ns - stamps[0]) * 1e-9, 2),
+        gripper_at_last_frame=gripper_at(frames),
+        removed_s=round((stamps[-1] - stamps[frames - 1]) * 1e-9, 2),
+    )
     if dry_run:
         return info
     if dst.exists():
@@ -207,10 +263,6 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("episodes", nargs="+", type=Path)
     parser.add_argument("--output-dir", type=Path, required=True)
-    parser.add_argument("--margin-s", type=float, default=0.0,
-                        help="keep this much extra time after the last teleop command")
-    parser.add_argument("--min-removed-s", type=float, default=0.0,
-                        help="copy episodes unchanged when less than this would be removed")
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
 
@@ -218,13 +270,7 @@ def main() -> int:
     for src in args.episodes:
         src = src.resolve()
         try:
-            info = clip_episode(src, args.output_dir / src.name, args.margin_s, dry_run=True)
-            if not args.dry_run:
-                if info["removed_s"] < args.min_removed_s:
-                    shutil.copytree(src, args.output_dir / src.name)
-                    info["copied_unchanged"] = True
-                else:
-                    info = clip_episode(src, args.output_dir / src.name, args.margin_s, dry_run=False)
+            info = clip_episode(src, args.output_dir / src.name, dry_run=args.dry_run)
             print(json.dumps(info))
         except Exception as exc:  # keep going, report at the end
             failures += 1
