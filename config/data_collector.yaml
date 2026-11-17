@@ -1,7 +1,7 @@
 # franka_data_collection config for this workspace (scripts/run_data_collection.sh). Copy of the package default
 # (src/franka_data_collection/config/data_collector.yaml) with the camera extrinsics filled in.
 node_name: "data_collector"
-storage_path: "/home/xiaoqi/projects/data"
+storage_path: "/mnt/data/xiaoqi/single_arm/put_bottle_on_box"
 
 topics:
   # robot state
