@@ -6,7 +6,7 @@
 # Set an explicit frame name instead of auto to use a custom tool frame.
 
 spawn_franka_left: true
-spawn_franka_right: true
+spawn_franka_right: false
 use_fake_hardware: false
 bypass_safety: true
 
