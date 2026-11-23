@@ -1,15 +1,12 @@
 #!/usr/bin/env python3
 """Print config/robot_overrides.yaml as shell-sourceable KEY=VALUE lines.
 
-Used by scripts/run_robot.sh and scripts/setup.sh via:
+Used by scripts/run_robot.sh and scripts/run_teleop.sh via:
     eval "$(pixi run -e humble python3 scripts/python/read_overrides.py "$OVERRIDES_FILE")"
 """
 import sys
 
 import yaml
-
-DYNAMIXEL_GRIPPER_TYPES = {"rh_p12_rn_a", "dynamixel"}
-
 
 def main():
     cfg = yaml.safe_load(open(sys.argv[1])) or {}
@@ -19,15 +16,12 @@ def main():
 
     gripper_type_left = cfg.get("franka_left", {}).get("gripper_type", "rh_p12_rn_a")
     gripper_type_right = cfg.get("franka_right", {}).get("gripper_type", "rh_p12_rn_a")
-    needs_dynamixel = {gripper_type_left, gripper_type_right} & DYNAMIXEL_GRIPPER_TYPES
-
     print(f"spawn_franka_left={flag('spawn_franka_left', True)}")
     print(f"spawn_franka_right={flag('spawn_franka_right', True)}")
     print(f"use_fake_hardware={flag('use_fake_hardware', False)}")
     print(f"bypass_safety={flag('bypass_safety', True)}")
     print(f"gripper_type_left={gripper_type_left}")
     print(f"gripper_type_right={gripper_type_right}")
-    print(f"needs_dynamixel={'true' if needs_dynamixel else 'false'}")
 
 
 if __name__ == "__main__":

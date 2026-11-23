@@ -7,11 +7,14 @@
     - [1.1.2. Install Pixi](#112-install-pixi)
     - [1.1.3. Stable Gripper Device Names](#113-stable-gripper-device-names)
   - [1.2. Getting Started](#12-getting-started)
-    - [1.2.1. Enter the ROS Environment](#121-enter-the-ros-environment)
-    - [1.2.2. Unified Setup \& Environment Initialization](#122-unified-setup--environment-initialization)
-    - [1.2.3. Build the Workspace](#123-build-the-workspace)
+    - [1.2.1. Clone the Workspace](#121-clone-the-workspace)
+    - [1.2.2. Enter the ROS Environment](#122-enter-the-ros-environment)
+    - [1.2.3. Unified Setup \& Environment Initialization](#123-unified-setup--environment-initialization)
+    - [1.2.4. Build the Workspace](#124-build-the-workspace)
+    - [1.2.5 Libfranka](#125-libfranka)
+    - [1.2.6. ROS Network Settings](#126-ros-network-settings)
   - [1.3. Running the Robot](#13-running-the-robot)
-    - [1.3.1. Base Launch (with Safety Layer \& ZED)](#131-base-launch-with-safety-layer--zed)
+    - [1.3.1. Base Launch (with Safety Layer)](#131-base-launch-with-safety-layer)
     - [1.3.2. Teleoperation (Meta Quest VR)](#132-teleoperation-meta-quest-vr)
     - [1.3.3. Data Collection](#133-data-collection)
     - [1.3.4. Running a Policy](#134-running-a-policy)
@@ -20,7 +23,6 @@
     - [1.4.1. Environments](#141-environments)
     - [1.4.2. Additional Tasks](#142-additional-tasks)
   - [1.5. Troubleshooting](#15-troubleshooting)
-    - [1.5.1. Left Arm Network Unreachable](#151-left-arm-network-unreachable)
 
 # 1. CRISP Workspace
 
@@ -53,9 +55,26 @@ sudo udevadm control --reload-rules && sudo udevadm trigger
 ls -l /dev/dynamixel_*
 ```
 
+Furthermore, add your user to the `dialout` group
+```
+sudo usermod -aG dialout <user>
+```
+
 ## 1.2. Getting Started
 
-### 1.2.1. Enter the ROS Environment
+### 1.2.1. Clone the Workspace
+```bash
+git clone https://github.com/DFKI-SAIROL/pixi_franka_crisp_ws.git
+cd pixi_franka_crisp_ws
+```
+
+> [!IMPORTANT]
+> Clone **without** `--recursive`. `src/` holds ~14 submodules and a recursive clone fetches all
+> of them, which defeats the install profile: the profile is applied by `pixi run setup` (it sets
+> `submodule.active`, which is local config and cannot exist before the clone). A plain clone
+> leaves every submodule as an empty directory until you pick a profile in step 1.2.3.
+
+### 1.2.2. Enter the ROS Environment
 Enter the Pixi shell first — `pixi run setup` calls `rosdep` which requires ROS to be available in PATH:
 ```bash
 pixi shell -e humble
@@ -64,11 +83,41 @@ pixi shell -e humble
 > [!NOTE]
 > This is a temporary requirement until `rosdep` is replaced with a pure Pixi-managed dependency resolution.
 
-### 1.2.2. Unified Setup & Environment Initialization
+### 1.2.3. Unified Setup & Environment Initialization
 Inside the shell, clone all dependencies (CRISP, Franka ROS 2, Dynamixel, etc.) and install system deps:
 ```bash
-pixi run setup
+pixi run setup            # uses the profile you last selected, or 'dfki'
+pixi run setup sim-only   # or pick one explicitly
 ```
+
+Which repositories get cloned is decided by an **install profile**. List them with:
+```bash
+pixi run profiles
+```
+
+| Profile | What it installs |
+| --- | --- |
+| `dfki` | Full lab platform: both arms, Dynamixel grippers, VR teleop, data collection |
+| `sim-only` | Fake hardware only - no gripper drivers, no teleop |
+| `minimal` | Smallest set that builds and drives an arm |
+
+The profile is remembered in `git config --local workspace.profile`, so later `pixi run setup`
+calls need no argument. Profiles, groups, and repository URLs are all declared in
+[`config/workspace.yaml`](config/workspace.yaml) - add a repository there rather than editing
+`scripts/setup.sh`.
+
+Most of `src/` is tracked as **git submodules** pinned to specific commits, so a fresh clone
+reproduces a known-good checkout. `pixi run setup` therefore installs the *pinned* versions rather
+than the latest. To move to the tip of each tracked branch:
+
+```bash
+pixi run update-src   # git submodule update --remote --merge
+```
+
+That leaves a working-tree change you either commit (a deliberate version bump, reviewable in the
+superproject) or discard. `src/franka_ros2/` is the exception - it stays a plain clone because the
+setup trims tracked files out of the upstream tree.
+
 > [!NOTE]
 > This clones repositories into `src/`, applies custom patches, and installs dependencies via `rosdep` and `snap` (for `scrcpy`).
 
@@ -77,7 +126,7 @@ Then refresh the Pixi environment to ensure it is fully in sync with `pixi.lock`
 pixi install -e humble
 ```
 
-### 1.2.3. Build the Workspace
+### 1.2.4. Build the Workspace
 Compile all C++ and Python packages:
 ```bash
 pixi run build
@@ -89,12 +138,49 @@ pixi run build
 > [!WARNING]
 > The build may fail partway through due to some internal problems with RAM. If this happens, simply rerun `pixi run build` — colcon will pick up where it left off. See backlog for details. This may[...]
 
+### 1.2.5 Libfranka
+Make sure to run a realtime kernel and to add your user to the `realtime` group to successfully run libfranka.
+```
+sudo usermod -aG realtime <user>
+```
+
+### 1.2.6. ROS Network Settings
+Per-machine ROS settings go in `config/local.env` (gitignored). Without it, a machine runs on
+`ROS_DOMAIN_ID=5`, `rmw_fastrtps_cpp` and the Fast DDS defaults, which is right for most machines.
+To change them, start from the template:
+```bash
+cp config/local.env.example config/local.env
+```
+The file takes plain `KEY=value` lines (no `export`, no `$VARIABLES`) and is read whenever the
+Pixi environment activates, so re-enter `pixi shell` after editing it. A variable already set in
+your shell wins over the file, e.g. `ROS_DOMAIN_ID=7 pixi run teleop`.
+
+**On the DFKI robot PC**, enable the lab's Fast DDS profile in `config/local.env`:
+```
+FASTRTPS_DEFAULT_PROFILES_FILE=config/fastdds_config.xml
+```
+The PC has several network interfaces (both arms, the camera link, the lab network, docker). The
+profile limits ROS traffic to loopback and the 10G link to the camera Jetson (`192.168.10.100`)
+and finds the Jetson (`192.168.10.212`) by unicast discovery. Without it, the Jetson's camera
+topics show up on the PC but carry no data. Check it from a fresh `pixi shell -e humble`:
+```bash
+echo $FASTRTPS_DEFAULT_PROFILES_FILE   # .../config/fastdds_config.xml
+```
+
+> [!WARNING]
+> The profile is for the robot PC only (it whitelists that PC's camera-link address), and its
+> discovery ports are for `ROS_DOMAIN_ID=5` with at most 40 ROS processes on the PC and 20 on the
+> Jetson. Processes beyond that, or on another domain, are silently not discovered. To change
+> either, regenerate the ports as described at the top of
+> [`config/fastdds_config.xml`](config/fastdds_config.xml).
+
+
 ---
 
 ## 1.3. Running the Robot
 
-### 1.3.1. Base Launch (with Safety Layer & ZED)
-This command opens a tmux session with the Franka driver, the ZED aggregator, and the safety layer:
+### 1.3.1. Base Launch (with Safety Layer)
+This command opens a tmux session with the Franka driver and the safety layer:
 ```bash
 pixi run robot
 ```
@@ -169,15 +255,8 @@ Then launch as usual with `pixi run robot`.
 
 ---
 ## 1.5. Troubleshooting
-### 1.5.1. Left Arm Network Unreachable
-Occasionally, after restarting the PC or if the network interface goes down, the left Franka arm might become unreachable on the network. This usually happens when the dedicated network interface (`en[...]
-To fix this, you need to manually assign the correct IP address (`192.168.1.100/24`) to the `enp5s0` interface.
 
-```bash
-# 1. Check the current status of the enp5s0 interface (it will likely be missing the inet address)
-ip addr show enp5s0
-# 2. Add the correct IP address to the interface
-sudo ip addr add 192.168.1.100/24 dev enp5s0
-# 3. Verify that the IP address has been successfully assigned
-ip addr show enp5s0
-```
+- **Camera topics are listed on the DFKI robot PC, but `ros2 topic echo` prints nothing:** the
+  Fast DDS profile is most likely not active. See
+  [1.2.6. ROS Network Settings](#126-ros-network-settings).
+

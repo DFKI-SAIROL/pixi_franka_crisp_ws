@@ -6,6 +6,7 @@ spawn_franka_left: true
 spawn_franka_right: true
 use_fake_hardware: false
 bypass_safety: true
+use_rviz: true  # start RViz2 with the robot; the command line (use_rviz:=) takes precedence
 
 franka_left:
   robot_ip: "192.168.1.4"
@@ -13,7 +14,7 @@ franka_left:
   # -> gripper_type: "None" / "franka_left_fr3_hand_tcp" -> gripper_type: "franka_default"
   gripper_port: "/dev/dynamixel_left"
   gripper_type: "rh_p12_rn_a" # rh_p12_rn_a/franka_default/None
-  arm_controller: "joint_impedance_controller" # joint_impedance_controller/joint_trajectory_controller/bspline_joint_controller
+  arm_controller: "joint_impedance_controller" # joint_impedance_controller/joint_trajectory_controller
 
 franka_right:
   robot_ip: "192.168.0.2"
@@ -21,4 +22,4 @@ franka_right:
   # -> gripper_type: "None" / "franka_right_fr3_hand_tcp" -> "gripper_type": "franka_default"
   gripper_port: "/dev/dynamixel_right"
   gripper_type: "rh_p12_rn_a" # rh_p12_rn_a/franka_default/None
-  arm_controller: "joint_impedance_controller" # joint_impedance_controller/joint_trajectory_controller/bspline_joint_controller
+  arm_controller: "joint_impedance_controller" # joint_impedance_controller/joint_trajectory_controller
